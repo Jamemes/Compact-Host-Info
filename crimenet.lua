@@ -30,6 +30,32 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_remove = "移出",
 			menu_join = "加入",
 		})
+	 elseif Idstring("spanish"):key() == SystemInfo:language():key() then
+        LocalizationManager:add_localized_strings({
+            menu_steam_profile = "Perfil de Steam",
+            menu_hrs_pl = " hrs.",
+            menu_hidden_steam_profile = "Perfil privado",
+            menu_suspect_loadout = "Equipamiento",
+            menu_suspect_database = "Base de datos",
+            menu_ban = "Bloquear",
+            menu_unban = "Desbloquear",
+            menu_add = "Añadir",
+            menu_remove = "Eliminar",
+            menu_join = "Unirse",
+        })
+    elseif Idstring("latam"):key() == SystemInfo:language():key() then
+        LocalizationManager:add_localized_strings({
+            menu_steam_profile = "Perfil de Steam",
+            menu_hrs_pl = " hrs.",
+            menu_hidden_steam_profile = "Perfil privado",
+            menu_suspect_loadout = "Equipamiento",
+            menu_suspect_database = "Base de datos",
+            menu_ban = "Bloquear",
+            menu_unban = "Desbloquear",
+            menu_add = "Añadir",
+            menu_remove = "Eliminar",
+            menu_join = "Unirse",
+        })
 	elseif Idstring("russian"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
 			menu_steam_profile = "Steam Профиль",

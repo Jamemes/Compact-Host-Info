@@ -2,7 +2,7 @@
 	"name": "Compact Host Info",
 	"description": "",
 	"author": "James",
-	"version": "2",
+	"version": "2.1",
 	"hooks": [
 		{"hook_id": "lib/managers/crimenetmanager",	"script_path": "crimenet.lua"}
 	],

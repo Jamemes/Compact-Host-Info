@@ -14,7 +14,6 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 		menu_add = "Add",
 		menu_remove = "Remove",
 		menu_join = "Join",
-		
 		cji_panel_size = "Panels size",
 		cji_panel_size_desc = "Size of the Info Panels.",
 	})
@@ -31,6 +30,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_add = "添加",
 			menu_remove = "移出",
 			menu_join = "加入",
+			-- cji_panel_size = "Panels size",
+			-- cji_panel_size_desc = "Size of the Info Panels.",
 		})
 	 elseif Idstring("spanish"):key() == SystemInfo:language():key() then
         LocalizationManager:add_localized_strings({
@@ -44,6 +45,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
             menu_add = "Añadir",
             menu_remove = "Eliminar",
             menu_join = "Unirse",
+			cji_panel_size = "Tamaño de los paneles",
+            cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
         })
     elseif Idstring("latam"):key() == SystemInfo:language():key() then
         LocalizationManager:add_localized_strings({
@@ -57,6 +60,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
             menu_add = "Añadir",
             menu_remove = "Eliminar",
             menu_join = "Unirse",
+			cji_panel_size = "Tamaño de los paneles",
+            cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
         })
 	elseif Idstring("russian"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
@@ -71,7 +76,6 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_remove = "Убрать",
 			menu_join = "Присоединится",
 			menu_drop_in_stealth_prompt = "По скрытому подходу",
-			
 			cji_panel_size = "Размер панелей",
 			cji_panel_size_desc = "Размер панелей информации.",
 		})

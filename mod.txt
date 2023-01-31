@@ -2,8 +2,16 @@
 	"name": "Compact Host Info",
 	"description": "",
 	"author": "James",
-	"version": "1",
+	"version": "2",
 	"hooks": [
 		{"hook_id": "lib/managers/crimenetmanager",	"script_path": "crimenet.lua"}
+	],
+	"updates" : [
+		{
+			"identifier" : "compact_info",
+			"host": {
+				"meta": "https://raw.githubusercontent.com/Jamemes/Compact-Host-Info/meta/meta.json"
+			}
+		}
 	]
 }

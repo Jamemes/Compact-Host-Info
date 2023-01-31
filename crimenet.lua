@@ -70,6 +70,7 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_add = "Добавить",
 			menu_remove = "Убрать",
 			menu_join = "Присоединится",
+			menu_drop_in_stealth_prompt = "По скрытому подходу",
 			
 			cji_panel_size = "Размер панелей",
 			cji_panel_size_desc = "Размер панелей информации.",
@@ -144,7 +145,7 @@ local function fine_text(text)
 	local x, y, w, h = text:text_rect()
 	text:set_size(w, h)
 	text:set_position(math.round(text:x()), math.round(text:y()))
-end
+end	
 
 local function current_stage(job, level)
 	local current_job_chain = tweak_data.narrative.jobs[tostring(job):gsub("_wrapper", "")].chain
@@ -347,7 +348,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	if self._host_info_panel then
 		return
 	end
-	
+
 	self._prevent_accident_clicks = true
 	managers.menu:active_menu().logic:selected_node():parameters().block_back = true
 
@@ -424,52 +425,148 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(money)
 	money:set_top(experience:bottom())
-	
-	local lobby_presets = job_info:text({
+
+	local server_data = job.server_data
+	local tactics = {
+		managers.localization:text("menu_plan_loud"),
+		managers.localization:text("menu_plan_stealth"),
+		[-1.0] = ""
+	}
+	local job_plan_header = job_info:text({
 		x = 8 * size,
-		name = "lobby_presets",
-		text = "",
+		name = "job_plan_header",
+		text = server_data.job_plan and server_data.job_plan ~= -1 and managers.localization:text("menu_preferred_plan") .. ": " or "",
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size * size,
+		color = tweak_data.screen_colors.text:with_alpha(0.675)
+	})
+	fine_text(job_plan_header)
+	job_plan_header:set_top(money:bottom())
+	
+	local job_plan = job_info:text({
+		x = 8 * size,
+		name = "job_plan",
+		text = tactics[server_data.job_plan],
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size * size,
+		color = server_data.job_plan == 2 and tweak_data.screen_colors.ghost_color or tweak_data.screen_colors.heat_warm_color
+	})
+	fine_text(job_plan)
+	job_plan:set_lefttop(job_plan_header:right(), job_plan_header:top())
+	
+	local drop_in = {
+		[0] = managers.localization:text("menu_off"),
+		"",
+		managers.localization:text("menu_drop_in_prompt"),
+		managers.localization:text("menu_drop_in_stealth_prompt")
+	}
+	local drop_in_header = job_info:text({
+		x = 8 * size,
+		name = "drop_in_header",
+		text = server_data.drop_in ~= 1 and managers.localization:text("menu_toggle_drop_in") .. ": " or "",
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size * size,
+		color = tweak_data.screen_colors.text:with_alpha(0.675)
+	})
+	fine_text(drop_in_header)
+	drop_in_header:set_top(job_plan_header:bottom())
+	
+	local drop_in = job_info:text({
+		x = 8 * size,
+		name = "drop_in",
+		text = drop_in[server_data.drop_in],
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size * size,
+		color = server_data.drop_in == 3 and tweak_data.screen_colors.ghost_color or tweak_data.screen_colors.text
+	})
+	fine_text(drop_in)
+	drop_in:set_lefttop(drop_in_header:right(), drop_in_header:top())
+
+	local kick_header = job_info:text({
+		x = 8 * size,
+		name = "kick_header",
+		text = server_data.kick_option ~= 1 and managers.localization:text("menu_kicking_allowed_option") .. ": " or "",
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size * size,
+		color = tweak_data.screen_colors.text:with_alpha(0.675)
+	})
+	fine_text(kick_header)
+	kick_header:set_top(drop_in_header:bottom())
+	local kick = {
+		[0] = managers.localization:text("menu_kick_disabled"),
+		"",
+		managers.localization:text("menu_kick_vote")
+	}
+	local kick = job_info:text({
+		x = 8 * size,
+		name = "kick",
+		text = kick[server_data.kick_option],
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size * size,
+		color = server_data.kick == 1 and tweak_data.screen_colors.ghost_color or tweak_data.screen_colors.text
+	})
+	fine_text(kick)
+	kick:set_lefttop(kick_header:right(), kick_header:top())
+
+	local rep_permission_header = job_info:text({
+		x = 8 * size,
+		name = "rep_permission_header",
+		text = server_data.min_level > 0 and managers.localization:text("menu_reputation_permission") .. ": " or "",
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size * size,
+		color = tweak_data.screen_colors.text:with_alpha(0.675)
+	})
+	fine_text(rep_permission_header)
+	rep_permission_header:set_top(kick_header:bottom())
+
+	local rep_permission = job_info:text({
+		x = 8 * size,
+		name = "rep_permission",
+		text = server_data.min_level > 0 and tostring(server_data.min_level) or "",
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size
 	})
+	fine_text(rep_permission)
+	rep_permission:set_lefttop(rep_permission_header:right(), rep_permission_header:top())
 	
-	local function text(id, forbid)
-		local line = forbid and "" or "\n"
-		return managers.localization:text(id) .. line
-	end
-	
-	local server_data = job.server_data
-	local tactics = {
-		text("menu_preferred_plan", true) .. ": " .. text("menu_plan_loud"),
-		text("menu_preferred_plan", true) .. ": " .. text("menu_plan_stealth"),
-		[-1.0] = ""
-	}
-	local kick = {
-		[0] = text("menu_kick_disabled"),
-		"",
-		text("menu_kick_vote")
-	}
 	local permission = {
 		"",
-		text("menu_friends_only_game"),
-		text("menu_private_game")
+		managers.localization:text("menu_friends_only_game"),
+		managers.localization:text("menu_private_game")
 	}
-	local rep_limit = server_data.min_level > 0 and text("menu_reputation_permission", true) .. ": " .. server_data.min_level .. "\n" or ""
-	local toggle_di = text("menu_toggle_drop_in", true)
-	local drop_in = {
-		[0] = toggle_di .. ": " .. text("menu_off"),
-		"",
-		toggle_di .. ": " .. text("menu_drop_in_prompt"),
-		toggle_di .. ": " .. text("menu_drop_in_stealth_prompt")
-	}
+	local permission = job_info:text({
+		x = 8 * size,
+		name = "permission",
+		text = permission[server_data.permission],
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size * size
+	})
+	fine_text(permission)
+	permission:set_top(rep_permission:bottom())
 
-	local str = tactics[server_data.job_plan] .. kick[server_data.kick_option] .. permission[server_data.permission] .. rep_limit .. drop_in[server_data.drop_in]
-	lobby_presets:set_text(str ~= "" and "\n" .. string.capitalize(string.lower(str)) or "")
-
-	fine_text(lobby_presets)
-	lobby_presets:set_top(money:bottom())
-
-	job_info:set_size(math.max(job_name:right(), difficulty_name:right(), one_down:right(), experience:right(), money:right(), lobby_presets:right()) + (8 * size), lobby_presets:bottom() + (8 * size))
+	job_info:set_size(
+		math.max(
+			job_name:right(),
+			difficulty_name:right(),
+			one_down:right(),
+			experience:right(),
+			money:right(),
+			job_plan:right(),
+			drop_in:right(),
+			kick:right(),
+			rep_permission:right(),
+			permission:right()
+		) + (8 * size),
+		
+		math.max(
+			money:bottom(),
+			job_plan:bottom(),
+			drop_in:bottom(),
+			kick:bottom(),
+			rep_permission:bottom(),
+			permission:bottom()
+		) + (8 * size)
+	)
 	
 	local host_head = self._host_info_panel:panel({
 		name = "host_head",

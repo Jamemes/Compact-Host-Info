@@ -16,6 +16,14 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 		menu_join = "Join",
 		cji_panel_size = "Panels size",
 		cji_panel_size_desc = "Size of the Info Panels.",
+		cji_host_head_size = "Host Info size",
+		cji_host_head_size_desc = "Size of the central panel.",
+		cji_btn_panel_size = "Buttons size",
+		cji_btn_panel_size_desc = "Size of the buttons below the central panel. (Join, Steam Profile and etc.)",
+		cji_job_info_size = "Job Info size",
+		cji_job_info_size_desc = "Size of the left panel.",
+		cji_mods_panel_size = "Mods List size",
+		cji_mods_panel_size_desc = "Size of the right panel.",
 	})
 		
 	if Idstring("schinese"):key() == SystemInfo:language():key() then
@@ -78,6 +86,14 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_drop_in_stealth_prompt = "По скрытому подходу",
 			cji_panel_size = "Размер панелей",
 			cji_panel_size_desc = "Размер панелей информации.",
+			cji_host_head_size = "Размер Информации о Хосте",
+			cji_host_head_size_desc = "Размер центральной панели.",
+			cji_btn_panel_size = "Размер кнопок",
+			cji_btn_panel_size_desc = "Размер кнопок, которые находятся ниже центральной панели. (Присоединится, Steam Профиль и тд.)",
+			cji_job_info_size = "Размер ифнормации о задании",
+			cji_job_info_size_desc = "Размер левой панели.",
+			cji_mods_panel_size = "Размер списка модификаций",
+			cji_mods_panel_size_desc = "Размер правой панели.",
 		})
 	end
 end)
@@ -131,7 +147,90 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		min = 0.5,
 		step = 0.1,
 		show_value = true,
-		menu_id = menu_id
+		menu_id = menu_id,
+		priority = 1
+	})
+	
+	MenuHelper:AddDivider({
+		id = "cji_divider_1",
+		size = 16,
+		menu_id = menu_id,
+	})
+	
+	function MenuCallbackHandler:set_cji_host_head_size_callback(item)
+		Compact_Info.settings.host_head_size = tonumber(item:value())
+		Compact_Info:Save()
+	end
+	
+	MenuHelper:AddSlider({
+		id = "cji_host_head_size",
+		title = "cji_host_head_size",
+		desc = "cji_host_head_size_desc",
+		callback = "set_cji_host_head_size_callback",
+		value = Compact_Info.settings.host_head_size or 1,
+		max = 1.2,
+		min = 0.5,
+		step = 0.1,
+		show_value = true,
+		menu_id = menu_id,
+		priority = -1
+	})
+	
+	function MenuCallbackHandler:set_cji_btn_panel_size_callback(item)
+		Compact_Info.settings.btn_panel_size = tonumber(item:value())
+		Compact_Info:Save()
+	end
+	
+	MenuHelper:AddSlider({
+		id = "cji_btn_panel_size",
+		title = "cji_btn_panel_size",
+		desc = "cji_btn_panel_size_desc",
+		callback = "set_cji_btn_panel_size_callback",
+		value = Compact_Info.settings.btn_panel_size or 1,
+		max = 1.2,
+		min = 0.5,
+		step = 0.1,
+		show_value = true,
+		menu_id = menu_id,
+		priority = -2
+	})
+	
+	function MenuCallbackHandler:set_cji_job_info_size_callback(item)
+		Compact_Info.settings.job_info_size = tonumber(item:value())
+		Compact_Info:Save()
+	end
+	
+	MenuHelper:AddSlider({
+		id = "cji_job_info_size",
+		title = "cji_job_info_size",
+		desc = "cji_job_info_size_desc",
+		callback = "set_cji_job_info_size_callback",
+		value = Compact_Info.settings.job_info_size or 1,
+		max = 1.2,
+		min = 0.5,
+		step = 0.1,
+		show_value = true,
+		menu_id = menu_id,
+		priority = -3
+	})
+	
+	function MenuCallbackHandler:set_cji_mods_panel_size_callback(item)
+		Compact_Info.settings.mods_panel_size = tonumber(item:value())
+		Compact_Info:Save()
+	end
+	
+	MenuHelper:AddSlider({
+		id = "cji_mods_panel_size",
+		title = "cji_mods_panel_size",
+		desc = "cji_mods_panel_size_desc",
+		callback = "set_cji_mods_panel_size_callback",
+		value = Compact_Info.settings.mods_panel_size or 1,
+		max = 1.2,
+		min = 0.5,
+		step = 0.1,
+		show_value = true,
+		menu_id = menu_id,
+		priority = -4
 	})
 
 	nodes[menu_id] = MenuHelper:BuildMenu(menu_id)
@@ -364,7 +463,9 @@ function CrimeNetGui:create_host_info(job, x, y)
 		name = "job_info"
 	})
 	
-	local size = Compact_Info.settings.size or 0.85
+	local lowest_val = 0.5
+	local size_value = (Compact_Info.settings.job_info_size or 1) * Compact_Info.settings.size
+	local size = size_value < lowest_val and lowest_val or size_value
 	local job_name = job_info:text({
 		y = 8 * size,
 		x = 8 * size,
@@ -572,6 +673,8 @@ function CrimeNetGui:create_host_info(job, x, y)
 		) + (8 * size)
 	)
 	
+	local size_value = (Compact_Info.settings.host_head_size or 1) * Compact_Info.settings.size
+	local size = size_value < lowest_val and lowest_val or size_value
 	local host_head = self._host_info_panel:panel({
 		name = "host_head",
 		w = 150 * size
@@ -708,6 +811,8 @@ function CrimeNetGui:create_host_info(job, x, y)
 	peers_panel:set_center_x(avatar_panel:center_x())
 	host_head:set_h(peers_panel:bottom() + (8 * size))
 
+	local size_value = (Compact_Info.settings.btn_panel_size or 1) * Compact_Info.settings.size
+	local size = size_value < lowest_val and lowest_val or size_value
 	local btn_panel = self._host_info_panel:panel({
 		name = "btn_panel",
 		w = host_head:w()
@@ -805,6 +910,8 @@ function CrimeNetGui:create_host_info(job, x, y)
 		end
 		
 		if table.size(self._fine_mods) > 0 then
+			local size_value = (Compact_Info.settings.mods_panel_size or 1) * Compact_Info.settings.size
+			local size = size_value < lowest_val and lowest_val or size_value
 			local mods_panel = self._host_info_panel:panel({name = "mods_panel"})
 			
 			local scroll_panel = mods_panel:panel({name = "scroll_panel"})

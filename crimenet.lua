@@ -913,7 +913,6 @@ function CrimeNetGui:create_host_info(job, x, y)
 			local size_value = (Compact_Info.settings.mods_panel_size or 1) * Compact_Info.settings.size
 			local size = size_value < lowest_val and lowest_val or size_value
 			local mods_panel = self._host_info_panel:panel({name = "mods_panel"})
-			
 			local scroll_panel = mods_panel:panel({name = "scroll_panel"})
 			
 			table.sort(self._fine_mods, function (a, b)
@@ -952,8 +951,8 @@ function CrimeNetGui:create_host_info(job, x, y)
 			panel_y = panel_y + (16 * size)
 			
 			local scrollable_panel_y = panel_y
-			if panel_y > host_head:h() then
-				panel_y = host_head:h()
+			if panel_y > btn_panel:bottom() then
+				panel_y = btn_panel:bottom()
 			end
 			
 			local offset = scrollable_panel_y > panel_y and 30 or 16

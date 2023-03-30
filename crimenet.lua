@@ -24,6 +24,15 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 		cji_job_info_size_desc = "Size of the left panel.",
 		cji_mods_panel_size = "Mods List size",
 		cji_mods_panel_size_desc = "Size of the right panel.",
+		cji_panel_position = "Panel appear",
+		cji_panel_position_desc = "Choose where the panel will appear, when you selecting a server on Crime.Net.",
+		cji_under_cursor = "Under Cursor",
+		cji_lefttop = "Left-Top",
+		cji_leftbottom = "Left-Bottom",
+		cji_centertop = "Center-Top",
+		cji_centerbottom = "Center-Bottom",
+		cji_righttop = "Right-Top",
+		cji_rightbottom = "Right-Bottom",
 	})
 		
 	if Idstring("schinese"):key() == SystemInfo:language():key() then
@@ -94,6 +103,15 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			cji_job_info_size_desc = "Размер левой панели.",
 			cji_mods_panel_size = "Размер списка модификаций",
 			cji_mods_panel_size_desc = "Размер правой панели.",
+			cji_panel_position = "Появление панели",
+			cji_panel_position_desc = "Выберите где панель будет появлятся, когда вы выбираете сервер в Crime.Net.",
+			cji_under_cursor = "Под курсором",
+			cji_lefttop = "Сверху-слева",
+			cji_leftbottom = "Снизу-слева",
+			cji_centertop = "По центру сверху",
+			cji_centerbottom = "По центру снизу",
+			cji_righttop = "Сверху-справа",
+			cji_rightbottom = "Снизу-справа",
 		})
 	end
 end)
@@ -129,7 +147,7 @@ Hooks:Add("MenuManagerInitialize", "MenuManagerInitialize_Compact_Info", functio
 end)
 
 Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_Info", function(menu_manager, nodes)
-	function MenuCallbackHandler:set_cji_size_callback(item)
+	function MenuCallbackHandler:set_cji_panel_size_callback(item)
 		Compact_Info.settings.size = tonumber(item:value())
 		Compact_Info:Save()
 	end
@@ -137,11 +155,37 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 	local menu_id = "compact_job_info_options"
 	MenuHelper:NewMenu(menu_id)
 	
+	local items = {
+		"cji_under_cursor",
+		"cji_lefttop",
+		"cji_leftbottom",
+		"cji_centertop",
+		"cji_centerbottom",
+		"cji_righttop",
+		"cji_rightbottom"
+	}
+
+	function MenuCallbackHandler:set_cji_panel_position_callback(item)
+		Compact_Info.settings.position = tonumber(item:value())
+		Compact_Info:Save()
+	end
+	
+	MenuHelper:AddMultipleChoice({
+		id = "cji_panel_position",
+		title = "cji_panel_position",
+		desc = "cji_panel_position_desc",
+		callback = "set_cji_panel_position_callback",
+		items = items,
+		value = Compact_Info.settings.position or 1,
+		menu_id = menu_id,
+		priority = 6,
+	})
+
 	MenuHelper:AddSlider({
 		id = "cji_panel_size",
 		title = "cji_panel_size",
 		desc = "cji_panel_size_desc",
-		callback = "set_cji_size_callback",
+		callback = "set_cji_panel_size_callback",
 		value = Compact_Info.settings.size,
 		max = 1.2,
 		min = 0.5,
@@ -451,7 +495,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	if self._host_info_panel then
 		return
 	end
-
+	
 	self._prevent_accident_clicks = true
 	managers.menu:active_menu().logic:selected_node():parameters().block_back = true
 
@@ -745,14 +789,14 @@ function CrimeNetGui:create_host_info(job, x, y)
 		local play_hours = self._players_playtime_by_id[job.host_id]
 		set_playtime_to_center(play_hours .. (play_hours ~= hidden and hrs or ""), playtime, avatar_panel)
 	else
-		dohttpreq('http://steamcommunity.com/profiles/' .. job.host_id .. '/games/?tab=all&games_in_common=1', function(page)
+		dohttpreq('http://steamcommunity.com/profiles/' .. job.host_id .. '/games/?xml=1', function(page)
 			if type(page) == "string" then
-				local game = '"name\":\"PAYDAY 2\"'
+				local game = "<appID>218620</appID>"
 				if string.find(tostring(page), game) then
-					local lox, pd2 = string.find(tostring(page), game)
-					local _, st = string.find(tostring(page), "hours_forever", pd2)
-					local en, _ = string.find(tostring(page), "last_played", st)
-					local hours = string.sub(tostring(page), st + 4, en - 4)
+					local _, pd2 = string.find(tostring(page), game)
+					local _, st = string.find(tostring(page), "<hoursOnRecord>", pd2)
+					local en, _ = string.find(tostring(page), "</hoursOnRecord>", st)
+					local hours = string.sub(tostring(page), st + 1, en - 1)
 					
 					set_playtime_to_center(hours .. hrs, playtime, avatar_panel)
 					self._players_playtime_by_id[job.host_id] = hours
@@ -1001,8 +1045,8 @@ function CrimeNetGui:move_host_info(x, y)
 		
 		if self._host_info_panel:top() < self._panel:top() then
 			self._host_info_panel:set_top(self._panel:top())
-		elseif self._host_info_panel:bottom() > self._panel:bottom() - 40 then
-			self._host_info_panel:set_bottom(self._panel:bottom() - 40)
+		elseif self._host_info_panel:bottom() > self._panel:bottom() - 60 then
+			self._host_info_panel:set_bottom(self._panel:bottom() - 60)
 		end
 		
 		if self._host_info_panel:left() < self._panel:left() + 60 then
@@ -1037,7 +1081,20 @@ function CrimeNetGui:recreate_host_info(job)
 		
 		self:destroy_host_info()
 		self:create_host_info(job)
+		
 		self._host_info_panel:set_center(x, y)
+				
+		if self._host_info_panel:top() < self._panel:top() then
+			self._host_info_panel:set_top(self._panel:top())
+		elseif self._host_info_panel:bottom() > self._panel:bottom() - 60 then
+			self._host_info_panel:set_bottom(self._panel:bottom() - 60)
+		end
+		
+		if self._host_info_panel:left() < self._panel:left() + 60 then
+			self._host_info_panel:set_left(self._panel:left() + 60)
+		elseif self._host_info_panel:right() > self._panel:right() then
+			self._host_info_panel:set_right(self._panel:right() - 5)
+		end
 		
 		local mods_panel_new = self._host_info_panel:child("mods_panel")
 		local host_nickname_new = self._host_info_panel:child("host_head"):child("host_nickname"):text()
@@ -1089,6 +1146,27 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 			if alive(self._host_info_panel) then
 				self:recreate_host_info(self._local_job)
 			else
+				local pos = Compact_Info.settings.position
+				if pos == 2 then
+					x = 0
+					y = 75
+				elseif pos == 3 then
+					x = 0
+					y = self._panel:h()
+				elseif pos == 4 then
+					x = self._panel:w() / 2
+					y = 75
+				elseif pos == 5 then
+					x = self._panel:w() / 2
+					y = self._panel:h()
+				elseif pos == 6 then
+					x = self._panel:w()
+					y = 75
+				elseif pos == 7 then
+					x = self._panel:w()
+					y = self._panel:h()
+				end
+
 				self:create_host_info(self._local_job, x, y)
 			end
 			managers.menu_component:post_event("menu_enter")

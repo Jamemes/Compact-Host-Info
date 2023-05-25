@@ -520,7 +520,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(job_name)
 	
-	local csrank = tonumber(job.crime_spree)
+	local csrank = tonumber(job.crime_spree) or 0
 	local skirmish_wave = nil
 	if job.is_skirmish then
 		local wave = job.skirmish_wave

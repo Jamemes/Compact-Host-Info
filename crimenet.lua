@@ -6,7 +6,9 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 		menu_compact_info = "Compact Host info",
 		menu_steam_profile = "Steam Profile",
 		menu_hrs_pl = " h.",
-		menu_hidden_steam_profile = "Hidden Profile",
+		menu_hidden_steam_profile = "Private Profile",
+		menu_hours_hidden = "Hours Hidden",
+		menu_epic_no_profiles = "Epic doesn't have profiles",
 		menu_suspect_loadout = "Loadout",
 		menu_suspect_database = "Database",
 		menu_ban = "Ban",
@@ -34,7 +36,7 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 		cji_righttop = "Right-Top",
 		cji_rightbottom = "Right-Bottom",
 	})
-		
+
 	if Idstring("schinese"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
 			menu_steam_profile = "Steam资料",
@@ -50,36 +52,36 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			-- cji_panel_size = "Panels size",
 			-- cji_panel_size_desc = "Size of the Info Panels.",
 		})
-	 elseif Idstring("spanish"):key() == SystemInfo:language():key() then
-        LocalizationManager:add_localized_strings({
-            menu_steam_profile = "Perfil de Steam",
-            menu_hrs_pl = " hrs.",
-            menu_hidden_steam_profile = "Perfil privado",
-            menu_suspect_loadout = "Equipamiento",
-            menu_suspect_database = "Base de datos",
-            menu_ban = "Bloquear",
-            menu_unban = "Desbloquear",
-            menu_add = "Añadir",
-            menu_remove = "Eliminar",
-            menu_join = "Unirse",
+	elseif Idstring("spanish"):key() == SystemInfo:language():key() then
+		LocalizationManager:add_localized_strings({
+			menu_steam_profile = "Perfil de Steam",
+			menu_hrs_pl = " hrs.",
+			menu_hidden_steam_profile = "Perfil privado",
+			menu_suspect_loadout = "Equipamiento",
+			menu_suspect_database = "Base de datos",
+			menu_ban = "Bloquear",
+			menu_unban = "Desbloquear",
+			menu_add = "Añadir",
+			menu_remove = "Eliminar",
+			menu_join = "Unirse",
 			cji_panel_size = "Tamaño de los paneles",
-            cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
-        })
-    elseif Idstring("latam"):key() == SystemInfo:language():key() then
-        LocalizationManager:add_localized_strings({
-            menu_steam_profile = "Perfil de Steam",
-            menu_hrs_pl = " hrs.",
-            menu_hidden_steam_profile = "Perfil privado",
-            menu_suspect_loadout = "Equipamiento",
-            menu_suspect_database = "Base de datos",
-            menu_ban = "Bloquear",
-            menu_unban = "Desbloquear",
-            menu_add = "Añadir",
-            menu_remove = "Eliminar",
-            menu_join = "Unirse",
+			cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
+		})
+	elseif Idstring("latam"):key() == SystemInfo:language():key() then
+		LocalizationManager:add_localized_strings({
+			menu_steam_profile = "Perfil de Steam",
+			menu_hrs_pl = " hrs.",
+			menu_hidden_steam_profile = "Perfil privado",
+			menu_suspect_loadout = "Equipamiento",
+			menu_suspect_database = "Base de datos",
+			menu_ban = "Bloquear",
+			menu_unban = "Desbloquear",
+			menu_add = "Añadir",
+			menu_remove = "Eliminar",
+			menu_join = "Unirse",
 			cji_panel_size = "Tamaño de los paneles",
-            cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
-        })
+			cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
+		})
 	elseif Idstring("russian"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
 			menu_steam_profile = "Steam Профиль",
@@ -151,10 +153,10 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		Compact_Info.settings.size = tonumber(item:value())
 		Compact_Info:Save()
 	end
-	
+
 	local menu_id = "compact_job_info_options"
 	MenuHelper:NewMenu(menu_id)
-	
+
 	local items = {
 		"cji_under_cursor",
 		"cji_lefttop",
@@ -169,7 +171,7 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		Compact_Info.settings.position = tonumber(item:value())
 		Compact_Info:Save()
 	end
-	
+
 	MenuHelper:AddMultipleChoice({
 		id = "cji_panel_position",
 		title = "cji_panel_position",
@@ -194,18 +196,18 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		menu_id = menu_id,
 		priority = 1
 	})
-	
+
 	MenuHelper:AddDivider({
 		id = "cji_divider_1",
 		size = 16,
 		menu_id = menu_id,
 	})
-	
+
 	function MenuCallbackHandler:set_cji_host_head_size_callback(item)
 		Compact_Info.settings.host_head_size = tonumber(item:value())
 		Compact_Info:Save()
 	end
-	
+
 	MenuHelper:AddSlider({
 		id = "cji_host_head_size",
 		title = "cji_host_head_size",
@@ -219,12 +221,12 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		menu_id = menu_id,
 		priority = -1
 	})
-	
+
 	function MenuCallbackHandler:set_cji_btn_panel_size_callback(item)
 		Compact_Info.settings.btn_panel_size = tonumber(item:value())
 		Compact_Info:Save()
 	end
-	
+
 	MenuHelper:AddSlider({
 		id = "cji_btn_panel_size",
 		title = "cji_btn_panel_size",
@@ -238,12 +240,12 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		menu_id = menu_id,
 		priority = -2
 	})
-	
+
 	function MenuCallbackHandler:set_cji_job_info_size_callback(item)
 		Compact_Info.settings.job_info_size = tonumber(item:value())
 		Compact_Info:Save()
 	end
-	
+
 	MenuHelper:AddSlider({
 		id = "cji_job_info_size",
 		title = "cji_job_info_size",
@@ -257,12 +259,12 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		menu_id = menu_id,
 		priority = -3
 	})
-	
+
 	function MenuCallbackHandler:set_cji_mods_panel_size_callback(item)
 		Compact_Info.settings.mods_panel_size = tonumber(item:value())
 		Compact_Info:Save()
 	end
-	
+
 	MenuHelper:AddSlider({
 		id = "cji_mods_panel_size",
 		title = "cji_mods_panel_size",
@@ -287,7 +289,7 @@ local function hide(text)
 		text:hide()
 	end
 end
-	
+
 local function fine_text(text)
 	local x, y, w, h = text:text_rect()
 	text:set_size(w, h)
@@ -308,7 +310,7 @@ local function current_stage(job, level)
 		end
 	end
 end
-	
+
 local function redone_text_length(text, panel)
 	local _, _, w, _ = text:text_rect()
 	while w > panel:w() - 16 do
@@ -323,11 +325,11 @@ local function setup_panel(panel)
 		layer = -1,
 		color = Color.black
 	})
-	
+
 	BoxGuiObject:new(panel, {
 		sides = {1, 1, 1, 1}
 	})
-	
+
 	panel:bitmap({
 		texture = "guis/textures/test_blur_df",
 		render_template = "VertexColorTexturedBlur3D",
@@ -366,7 +368,7 @@ local function peer_modlist_highlight_injector(mod, config)
 	if not PeerModListHighlights then
 		return
 	end
-	
+
 	if table.contains(PeerModListHighlights.lists.greenlist, string.upper(mod)) then
 		config.mod_rate = 3
 		config.color = PeerModListHighlights.greencolour
@@ -393,25 +395,25 @@ function CrimeNetGui:dialog_move_mod_to_list(button, mods_panel, scroll_panel, m
 						else
 							table.delete(first, string.upper(mod))
 						end
-						
+
 						if table.contains(second, string.upper(mod)) then
 							table.delete(second, string.upper(mod))
 						elseif table.contains(third, string.upper(mod)) then
 							table.delete(third, string.upper(mod))
 						end
-							
+
 						file:write(json.encode(PeerModListHighlights.lists))
 						file:close()
 					end
-					
+
 					self:recreate_host_info(self._local_job)
 				end
-				
+
 				local dialog_data = {
 					title = managers.localization:text("PMLH_adjustmenutitle"),
 					text = managers.localization:text("PMLH_adjustmenuquestion") .. "\n\n" .. tostring(mod.name)
 				}
-				
+
 				dialog_data.button_list = {
 					{
 						text = "("..managers.localization:text("PMLH_list1name")..") "..managers.localization:text(table.contains(list.greenlist, string.upper(mod.name)) and "menu_remove" or "menu_add"),
@@ -446,10 +448,11 @@ function CrimeNetGui:dialog_move_mod_to_list(button, mods_panel, scroll_panel, m
 	end
 end
 
-local gui = CrimeNetGui._create_job_gui
+local orig_gui = CrimeNetGui._create_job_gui
 function CrimeNetGui:_create_job_gui(data, type, fixed_x, fixed_y, fixed_location)
-	local gui_data = gui(self, data, type, fixed_x, fixed_y, fixed_location)
-				
+	local gui_data = orig_gui(self, data, type, fixed_x, fixed_y, fixed_location)
+
+
 	if gui_data.host_id then
 		Steam:friend_avatar(2, gui_data.host_id, function(texture)
 			if gui_data.host_avatar ~= texture then
@@ -457,7 +460,7 @@ function CrimeNetGui:_create_job_gui(data, type, fixed_x, fixed_y, fixed_locatio
 			end
 		end)
 	end
-	
+
 	return gui_data
 end
 
@@ -467,7 +470,7 @@ function CrimeNetGui:update_all_job_guis(closest_job, inside_any_job)
 		closest_job = {}
 		inside_any_job = false
 	end
-		
+
 	self._closest_job = closest_job
 
 	data(self, closest_job, inside_any_job)
@@ -478,14 +481,14 @@ function CrimeNetGui:special_btn_pressed(button)
 	if Input:keyboard():pressed(Idstring("esc")) and self._host_info_panel then
 		self:destroy_host_info()
 	end
-		
+
 	return data(self, button)
 end
 
 local data = CrimeNetGui.mouse_pressed
 function CrimeNetGui:mouse_pressed(o, button, x, y)
 	local pressed = data(self, o, button, x, y)
-	
+
 	self:press_mouse_on_info_panels(button, x, y)
 
 	return pressed
@@ -495,31 +498,32 @@ function CrimeNetGui:create_host_info(job, x, y)
 	if self._host_info_panel then
 		return
 	end
-	
+
 	self._prevent_accident_clicks = true
 	managers.menu:active_menu().logic:selected_node():parameters().block_back = true
 
 	self._host_info_panel = self._panel:panel({
 		layer = 28
 	})
-	
+
 	local job_info = self._host_info_panel:panel({
 		name = "job_info"
 	})
-	
+
 	local lowest_val = 0.5
 	local size_value = (Compact_Info.settings.job_info_size or 1) * Compact_Info.settings.size
 	local size = size_value < lowest_val and lowest_val or size_value
+
 	local job_name = job_info:text({
-		y = 8 * size,
 		x = 8 * size,
+		y = 8 * size,
 		name = "job_name",
 		text = job.server_data.level_name or "NO JOB",
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size
 	})
 	fine_text(job_name)
-	
+
 	local csrank = tonumber(job.crime_spree) or 0
 	local skirmish_wave = nil
 	if job.is_skirmish then
@@ -532,7 +536,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 			skirmish_wave = managers.localization:to_upper_text("menu_lobby_server_state_" .. tweak_data:index_to_server_state(job.state))
 		end
 	end
-	
+
 	local difficulty_name = job_info:text({
 		x = 8 * size,
 		name = "difficulty_name",
@@ -543,7 +547,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(difficulty_name)
 	difficulty_name:set_top(job_name:bottom())
-	
+
 	local one_down = job_info:text({
 		name = "one_down",
 		text = job.one_down == 1 and managers.localization:to_upper_text("menu_one_down") or "",
@@ -553,7 +557,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(one_down)
 	one_down:set_lefttop(difficulty_name:right(), difficulty_name:top())
-	
+
 	local experience = job_info:text({
 		x = 8 * size,
 		name = "experience",
@@ -575,6 +579,61 @@ function CrimeNetGui:create_host_info(job, x, y)
 	fine_text(money)
 	money:set_top(experience:bottom())
 
+	-- From FastNET Continued by test1.
+	-- Originally "function MenuNodeTableGui:completed_job" in `.../mods/FastNet Continued/Hooks/ServerColumns.lua`
+	local function completed_job(job_id, difficulty, is_one_down)
+		if job_id == nil then return 0 end
+
+		local job_stats = managers.statistics._global.sessions.jobs
+		local tweak_jobs = tweak_data.narrative.jobs
+		local job_wrapper = nil
+
+		if tweak_data.narrative:has_job_wrapper(job_id) then
+			job_wrapper = tweak_jobs[job_id].job_wrapper
+		elseif tweak_data.narrative:is_wrapped_to_job(job_id) then
+			job_wrapper = tweak_jobs[tweak_jobs[job_id].wrapped_to_job].job_wrapper
+		end
+
+		local function single_job_count(job_id, difficulty, is_one_down)
+			local stat_prefix = tostring(job_id) .. "_" .. tostring(difficulty)
+			local stat_suffix = "_completed"
+
+			local count = 0
+
+			count = count + (job_stats[stat_prefix .. "_od" .. stat_suffix] or 0)
+
+			if not is_one_down then
+				count = count + (job_stats[stat_prefix .. stat_suffix] or 0)
+			end
+
+			return count
+		end
+
+		local count = 0
+
+		if job_wrapper then
+			local count = 0
+
+			for _, wrapped_job in ipairs(job_wrapper) do
+				count = count + single_job_count(wrapped_job, difficulty, is_one_down)
+			end
+
+			return count
+		end
+
+		return single_job_count(job_id, difficulty, is_one_down)
+	end
+
+	local completed = job_info:text({
+		x = 8 * size,
+		name = "completed",
+		text = "Completed: " .. completed_job(job.job_id, job.difficulty, job.one_down == 1),
+		font = tweak_data.menu.pd2_small_font,
+		font_size = tweak_data.menu.pd2_small_font_size * size
+	})
+	fine_text(completed)
+	completed:set_top(money:bottom())
+
 	local server_data = job.server_data
 	local tactics = {
 		managers.localization:text("menu_plan_loud"),
@@ -590,8 +649,8 @@ function CrimeNetGui:create_host_info(job, x, y)
 		color = tweak_data.screen_colors.text:with_alpha(0.675)
 	})
 	fine_text(job_plan_header)
-	job_plan_header:set_top(money:bottom())
-	
+	job_plan_header:set_top(completed:bottom())
+
 	local job_plan = job_info:text({
 		x = 8 * size,
 		name = "job_plan",
@@ -602,7 +661,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(job_plan)
 	job_plan:set_lefttop(job_plan_header:right(), job_plan_header:top())
-	
+
 	local drop_in = {
 		[0] = managers.localization:text("menu_off"),
 		"",
@@ -619,7 +678,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(drop_in_header)
 	drop_in_header:set_top(job_plan_header:bottom())
-	
+
 	local drop_in = job_info:text({
 		x = 8 * size,
 		name = "drop_in",
@@ -677,7 +736,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(rep_permission)
 	rep_permission:set_lefttop(rep_permission_header:right(), rep_permission_header:top())
-	
+
 	local permission = {
 		"",
 		managers.localization:text("menu_friends_only_game"),
@@ -700,15 +759,16 @@ function CrimeNetGui:create_host_info(job, x, y)
 			one_down:right(),
 			experience:right(),
 			money:right(),
+			completed:right(),
 			job_plan:right(),
 			drop_in:right(),
 			kick:right(),
 			rep_permission:right(),
 			permission:right()
 		) + (8 * size),
-		
+
 		math.max(
-			money:bottom(),
+			completed:bottom(),
 			job_plan:bottom(),
 			drop_in:bottom(),
 			kick:bottom(),
@@ -716,7 +776,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 			permission:bottom()
 		) + (8 * size)
 	)
-	
+
 	local size_value = (Compact_Info.settings.host_head_size or 1) * Compact_Info.settings.size
 	local size = size_value < lowest_val and lowest_val or size_value
 	local host_head = self._host_info_panel:panel({
@@ -724,7 +784,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 		w = 150 * size
 	})
 	host_head:set_left(job_info:right() + 5)
-	
+
 	local avatar_panel = host_head:panel({
 		name = "avatar_panel",
 		y = 8 * size,
@@ -732,7 +792,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 		w = host_head:w() - 16 * size
 	})
 	avatar_panel:set_center_x(host_head:w() / 2)
-	
+
 	local avatar = avatar_panel:bitmap({
 		h = avatar_panel:h(),
 		w = avatar_panel:w(),
@@ -741,24 +801,26 @@ function CrimeNetGui:create_host_info(job, x, y)
 		blend_mode = "normal"
 	})
 	avatar:set_image(job.host_avatar)
-	
+
 	BoxGuiObject:new(avatar_panel, {
 		sides = {1, 1, 1, 1}
 	})
-	
+
+	local steam_username = Steam:username(job.host_id)
+
 	local host_nickname = host_head:text({
 		name = "host_nickname",
 		align = "center",
-		text = tostring(Steam:username(job.host_id)),
+		text = tostring(steam_username ~= "" and steam_username or (job.host_name ~= nil and job.host_name) or "Unknown"),
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font
 	})
 	redone_text_length(host_nickname, host_head)
-	
+
 	fine_text(host_nickname)
 	host_nickname:set_top(avatar_panel:bottom() + 5)
 	host_nickname:set_center_x(avatar_panel:center_x())
-	
+
 	local playtime = host_head:text({
 		name = "playtime",
 		align = "center",
@@ -773,6 +835,9 @@ function CrimeNetGui:create_host_info(job, x, y)
 
 	local hrs = managers.localization:text("menu_hrs_pl")
 	local hidden = managers.localization:text("menu_hidden_steam_profile")
+	local private = managers.localization:text("menu_hours_hidden")
+	local epic_profile = managers.localization:text("menu_epic_no_profiles")
+
 	local function set_playtime_to_center(str, text, panel)
 		if alive(text) then
 			text:set_text(str)
@@ -780,34 +845,40 @@ function CrimeNetGui:create_host_info(job, x, y)
 			text:set_center_x(panel:center_x())
 		end
 	end
-	
+
 	if not self._players_playtime_by_id then
 		self._players_playtime_by_id = {}
 	end
-	
-	if table.has(self._players_playtime_by_id, job.host_id) then
-		local play_hours = self._players_playtime_by_id[job.host_id]
-		set_playtime_to_center(play_hours .. (play_hours ~= hidden and hrs or ""), playtime, avatar_panel)
-	else
-		dohttpreq('http://steamcommunity.com/profiles/' .. job.host_id .. '/games/?xml=1', function(page)
-			if type(page) == "string" then
-				local game = "<appID>218620</appID>"
-				if string.find(tostring(page), game) then
-					local _, pd2 = string.find(tostring(page), game)
-					local _, st = string.find(tostring(page), "<hoursOnRecord>", pd2)
-					local en, _ = string.find(tostring(page), "</hoursOnRecord>", st)
-					local hours = string.sub(tostring(page), st + 1, en - 1)
-					
-					set_playtime_to_center(hours .. hrs, playtime, avatar_panel)
-					self._players_playtime_by_id[job.host_id] = hours
-				else
-					set_playtime_to_center(hidden, playtime, avatar_panel)
-					self._players_playtime_by_id[job.host_id] = hidden
+
+	if #job.host_id ~= 32 then -- Epic uses a 32-character ID; Steam doesn't have a guaranteed single length.
+		if table.has(self._players_playtime_by_id, job.host_id) then
+			local play_hours = self._players_playtime_by_id[job.host_id]
+			set_playtime_to_center(play_hours .. ((play_hours ~= hidden and play_hours ~= private) and hrs or ""), playtime, avatar_panel)
+		else
+			dohttpreq('http://steamcommunity.com/profiles/' .. job.host_id .. '/games/?xml=1', function(page)
+				if type(page) == "string" then
+					local game = "<appID>218620</appID>"
+					if string.find(tostring(page), game) then
+						local _, pd2 = string.find(tostring(page), game)
+						local _, st = string.find(tostring(page), "<hoursOnRecord>", pd2)
+						local en, _ = string.find(tostring(page), "</hoursOnRecord>", st)
+						local hours = string.sub(tostring(page), st + 1, en - 1)
+
+						set_playtime_to_center(hours .. hrs, playtime, avatar_panel)
+						self._players_playtime_by_id[job.host_id] = hours
+					elseif string.find(tostring(page), "is private") then -- No lang identifier in query, so result should be in English and make this work.
+						set_playtime_to_center(hidden, playtime, avatar_panel)
+					else
+						set_playtime_to_center(private, playtime, avatar_panel)
+						self._players_playtime_by_id[job.host_id] = private
+					end
 				end
-			end
-		end)
+			end)
+		end
+	else
+		set_playtime_to_center(epic_profile, playtime, avatar_panel)
 	end
-	
+
 	local in_lobby = managers.localization:text("menu_lobby_server_state_in_lobby")
 	local in_game = managers.localization:text("menu_lobby_server_state_in_game")
 	local server_state = host_head:text({
@@ -821,11 +892,11 @@ function CrimeNetGui:create_host_info(job, x, y)
 	fine_text(server_state)
 	server_state:set_top(playtime:bottom() + 2)
 	server_state:set_center_x(avatar_panel:center_x())
-	
+
 	local peers_panel = host_head:panel({
 		name = "peers_panel"
 	})
-	
+
 	local cx = 0
 	local ch = 0
 	local cw = 0
@@ -840,16 +911,16 @@ function CrimeNetGui:create_host_info(job, x, y)
 			name = tostring(i),
 			alpha = i <= job.num_plrs and 1 or 0.15
 		})
-		
+
 		if i > 1 then
 			player_marker:set_left(cx + (3 * size))
 		end
-		
+
 		cx = player_marker:right()
 		cw = cw + player_marker:w() + (3 * size)
 		ch = player_marker:h()
 	end
-	
+
 	peers_panel:set_size(cw - (3 * size), ch)
 	peers_panel:set_top(server_state:bottom() + 2)
 	peers_panel:set_center_x(avatar_panel:center_x())
@@ -875,7 +946,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(join)
 	join:set_w(btn_panel:w())
-	
+
 	local steam_profile = btn_panel:text({
 		name = "steam_profile",
 		align = "center",
@@ -887,7 +958,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	fine_text(steam_profile)
 	steam_profile:set_w(btn_panel:w())
 	steam_profile:set_top(join:bottom() + 5)
-	
+
 	local loadout = btn_panel:text({
 		name = "loadout",
 		align = "center",
@@ -899,7 +970,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	fine_text(loadout)
 	loadout:set_w(btn_panel:w())
 	loadout:set_top(steam_profile:bottom())
-	
+
 	local database = btn_panel:text({
 		name = "database",
 		align = "center",
@@ -911,7 +982,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	fine_text(database)
 	database:set_w(btn_panel:w())
 	database:set_top(loadout:bottom())
-	
+
 	local ban = btn_panel:text({
 		name = "ban",
 		align = "center",
@@ -925,20 +996,22 @@ function CrimeNetGui:create_host_info(job, x, y)
 	ban:set_w(btn_panel:w())
 	ban:set_top(database:bottom())
 
+	redone_text_length(playtime, avatar_panel) -- Not sure if this is necessary? - T.S./l3laze
+
 	redone_text_length(join, btn_panel)
 	redone_text_length(steam_profile, btn_panel)
 	redone_text_length(loadout, btn_panel)
 	redone_text_length(database, btn_panel)
 	redone_text_length(ban, btn_panel)
-	
+
 	btn_panel:set_h(ban:bottom() + 5)
-	
+
 	self._host_info_panel:set_size(host_head:right(), btn_panel:bottom())
-	
-	if job.mods and job.mods ~= "" and job.mods ~= "1" then
+
+	if job.mods and job.mods ~= "" and job.mods ~= "1" and job.mods ~= "7d66a433be3a1fe2" then
 		self._fine_mods = {}
 		local mods_list = string.split(job.mods, "|")
-		
+
 		for id, mod in pairs(mods_list) do
 			if (id % 2 ~= 0) and string.upper(mod) ~= "SUPERBLT" and string.upper(mod) ~= "BEARDLIB" then
 				local config = {
@@ -946,23 +1019,23 @@ function CrimeNetGui:create_host_info(job, x, y)
 					color = tweak_data.screen_colors.text,
 					mod_rate = 0
 				}
-				
+
 				peer_modlist_highlight_injector(mod, config)
-	
+
 				table.insert(self._fine_mods, config)
 			end
 		end
-		
+
 		if table.size(self._fine_mods) > 0 then
 			local size_value = (Compact_Info.settings.mods_panel_size or 1) * Compact_Info.settings.size
 			local size = size_value < lowest_val and lowest_val or size_value
 			local mods_panel = self._host_info_panel:panel({name = "mods_panel"})
 			local scroll_panel = mods_panel:panel({name = "scroll_panel"})
-			
+
 			table.sort(self._fine_mods, function (a, b)
 				return a.mod_rate > b.mod_rate
 			end)
-			
+
 			local panel_y = 0
 			local panel_w = 0
 			for id, mod in pairs(self._fine_mods) do
@@ -979,32 +1052,32 @@ function CrimeNetGui:create_host_info(job, x, y)
 					font_size = tweak_data.menu.pd2_small_font_size * size,
 					color = mod.color
 				})
-				
+
 				fine_text(mod)
-				
+
 				local _, _, w, h = mod:text_rect()
 				panel_y = panel_y + h
-				
+
 				if w > panel_w then
 					panel_w = w
 				end
-				
+
 				mod:set_w(1000)
 			end
-			 
+
 			panel_y = panel_y + (16 * size)
-			
+
 			local scrollable_panel_y = panel_y
 			if panel_y > btn_panel:bottom() then
 				panel_y = btn_panel:bottom()
 			end
-			
+
 			local offset = scrollable_panel_y > panel_y and 30 or 16
 			mods_panel:set_size(panel_w + offset, panel_y)
 			scroll_panel:set_size(panel_w + offset, scrollable_panel_y)
-			
+
 			setup_panel(mods_panel)
-			
+
 			local scroll_up = mods_panel:bitmap({
 				name = "scroll_up",
 				h = 22,
@@ -1029,9 +1102,9 @@ function CrimeNetGui:create_host_info(job, x, y)
 			self._host_info_panel:set_w(mods_panel:right())
 		end
 	end
-	
+
 	self:move_host_info(x, y)
-	
+
 	setup_panel(job_info)
 	setup_panel(host_head)
 	setup_panel(btn_panel)
@@ -1042,13 +1115,13 @@ function CrimeNetGui:move_host_info(x, y)
 		local ax = self._host_info_panel:child("host_head"):center_x()
 		local ay = self._host_info_panel:child("host_head"):center_y()
 		self._host_info_panel:set_lefttop(x - ax, y - ay + 35)
-		
+
 		if self._host_info_panel:top() < self._panel:top() then
 			self._host_info_panel:set_top(self._panel:top())
 		elseif self._host_info_panel:bottom() > self._panel:bottom() - 60 then
 			self._host_info_panel:set_bottom(self._panel:bottom() - 60)
 		end
-		
+
 		if self._host_info_panel:left() < self._panel:left() + 60 then
 			self._host_info_panel:set_left(self._panel:left() + 60)
 		elseif self._host_info_panel:right() > self._panel:right() then
@@ -1072,30 +1145,30 @@ function CrimeNetGui:recreate_host_info(job)
 		local host_nickname = self._host_info_panel:child("host_head"):child("host_nickname"):text()
 		local x, y = self._host_info_panel:center_x(), self._host_info_panel:center_y()
 		local pos, up_visible, down_visible = nil, false, true
-		
+
 		if alive(mods_panel) then
 			pos = mods_panel:child("scroll_panel"):y()
 			up_visible = mods_panel:child("scroll_up"):visible()
 			down_visible = mods_panel:child("scroll_down"):visible()
 		end
-		
+
 		self:destroy_host_info()
 		self:create_host_info(job)
-		
+
 		self._host_info_panel:set_center(x, y)
-				
+
 		if self._host_info_panel:top() < self._panel:top() then
 			self._host_info_panel:set_top(self._panel:top())
 		elseif self._host_info_panel:bottom() > self._panel:bottom() - 60 then
 			self._host_info_panel:set_bottom(self._panel:bottom() - 60)
 		end
-		
+
 		if self._host_info_panel:left() < self._panel:left() + 60 then
 			self._host_info_panel:set_left(self._panel:left() + 60)
 		elseif self._host_info_panel:right() > self._panel:right() then
 			self._host_info_panel:set_right(self._panel:right() - 5)
 		end
-		
+
 		local mods_panel_new = self._host_info_panel:child("mods_panel")
 		local host_nickname_new = self._host_info_panel:child("host_head"):child("host_nickname"):text()
 		if alive(mods_panel_new) and host_nickname_new == host_nickname then
@@ -1119,7 +1192,7 @@ Hooks:PostHook(CrimeNetGui, "mouse_released", "ECN_stop_moving_host_info", funct
 	if self._prevent_accident_clicks then
 		self._prevent_accident_clicks = nil
 	end
-	
+
 	if self._host_head_hold then
 		self._host_head_hold = nil
 	end
@@ -1129,19 +1202,19 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 	if not self:input_focus() then
 		return
 	end
-	
+
 	self._closest_host = self._closest_job and self._closest_job.host_id
-	
+
 	if self._closest_host then
 		self._local_job = self._closest_job
 	end
-	
+
 	if not self._inside_info then
 		if alive(self._host_info_panel) and button == Idstring("1") then
 			self:destroy_host_info()
 			managers.menu_component:post_event("menu_exit")
 		end
-		
+
 		if self._closest_host and button == Idstring("0") then
 			if alive(self._host_info_panel) then
 				self:recreate_host_info(self._local_job)
@@ -1172,14 +1245,14 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 			managers.menu_component:post_event("menu_enter")
 		end
 	end
-	
+
 	if self._host_info_panel then
 		if button == Idstring("0") then
 			local host_head = self._host_info_panel:child("host_head")
 			local btn_panel = self._host_info_panel:child("btn_panel")
 			local job_info = self._host_info_panel:child("job_info")
 			local mods_panel = self._host_info_panel:child("mods_panel")
-			
+
 			if host_head:inside(x, y) or btn_panel:inside(x, y) or job_info:inside(x, y) or (mods_panel and mods_panel:inside(x, y)) then
 				self._grabbed_map = nil
 			end
@@ -1188,7 +1261,7 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 				if host_head:child("avatar_panel"):inside(x, y) then
 					self._host_head_hold = true
 				end
-		
+
 				if btn_panel:child("join"):inside(x, y) then
 					managers.menu_component:post_event("menu_enter")
 					managers.network.matchmake:join_server_with_check(self._local_job.room_id, false, self._local_job)
@@ -1250,7 +1323,7 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 			local scroll_panel, scroll_up, scroll_down = mods_panel:child("scroll_panel"), mods_panel:child("scroll_up"), mods_panel:child("scroll_down")
 			self:dialog_move_mod_to_list(button, mods_panel, scroll_panel, self._fine_mods, scroll_up, scroll_down, x, y)
 		end
-			
+
 		local mods_panel = self._host_info_panel:child("mods_panel")
 		local inside_mods = mods_panel and mods_panel:inside(x, y)
 		if inside_mods and mods_panel:child("scroll_panel"):h() > mods_panel:h() then
@@ -1268,7 +1341,7 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 					scroll_panel:set_y(scroll_panel:y() - 12)
 				end
 			end
-			
+
 			scroll_up:set_visible(scroll_panel:top() ~= 0)
 			scroll_down:set_visible(scroll_panel:bottom() ~= mods_panel:h())
 		end
@@ -1278,7 +1351,7 @@ end
 local data = CrimeNetGui.mouse_moved
 function CrimeNetGui:mouse_moved(o, x, y)
 	local used, pointer = data(self, o, x, y)
-	
+
 	local info = self._host_info_panel
 	self._inside_info = info and (info:child("host_head"):inside(x, y) or info:child("btn_panel"):inside(x, y) or info:child("job_info"):inside(x, y) or (info:child("mods_panel") and info:child("mods_panel"):inside(x, y)))
 
@@ -1286,12 +1359,12 @@ function CrimeNetGui:mouse_moved(o, x, y)
 		if not self._grabbed_map and self._inside_info then
 			used, pointer = true, "arrow"
 		end
-			
+
 		if alive(info) then
 			if self._host_head_hold then
 				self:move_host_info(x, y)
 			end
-		
+
 			local function button(btn, unactive)
 				local color_1 = unactive and tweak_data.screen_colors.achievement_grey or tweak_data.screen_colors.button_stage_2
 				local color_2 = unactive and tweak_data.screen_colors.achievement_grey:with_alpha(0.5) or tweak_data.screen_colors.button_stage_3
@@ -1305,17 +1378,17 @@ function CrimeNetGui:mouse_moved(o, x, y)
 					btn:set_color(color_2)
 				end
 			end
-			
+
 			local btn_panel = self._host_info_panel:child("btn_panel")
 			local playtime = self._host_info_panel:child("host_head"):child("playtime")
 			local hidden_profile = playtime:text() == managers.localization:text("menu_hidden_steam_profile")
-	
+
 			button(btn_panel:child("join"))
 			button(btn_panel:child("steam_profile"))
 			button(btn_panel:child("loadout"), hidden_profile)
 			button(btn_panel:child("database"), hidden_profile)
 			button(btn_panel:child("ban"))
-			
+
 			if alive(info:child("mods_panel")) then
 				local scroll_panel, scroll_up, scroll_down = info:child("mods_panel"):child("scroll_panel"), info:child("mods_panel"):child("scroll_up"), info:child("mods_panel"):child("scroll_down")
 				for id, mod in pairs(self._fine_mods) do
@@ -1324,14 +1397,14 @@ function CrimeNetGui:mouse_moved(o, x, y)
 						if btn:color() == mod.color then
 							managers.menu_component:post_event("highlight")
 						end
-						
+
 						btn:set_color(tweak_data.screen_colors.button_stage_2)
 						used, pointer = true, "link"
 					else
 						btn:set_color(mod.color)
 					end
 				end
-				
+
 				if not self._grabbed_map and (scroll_up:inside(x, y) or scroll_down:inside(x, y)) then
 					used, pointer = true, "link"
 				end

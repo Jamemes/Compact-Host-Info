@@ -5,10 +5,11 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 	LocalizationManager:add_localized_strings({
 		menu_compact_info = "Compact Host info",
 		menu_steam_profile = "Steam Profile",
+		menu_epic_profile = "Epic Games Profile",
 		menu_hrs_pl = " h.",
 		menu_hidden_steam_profile = "Private Profile",
-		menu_hours_hidden = "Hours Hidden",
-		menu_epic_no_profiles = "Epic doesn't have profiles",
+		menu_hours_hidden = "Game Info is Hidden",
+		menu_epic_no_profiles = "Epic Games Account",
 		menu_suspect_loadout = "Loadout",
 		menu_suspect_database = "Database",
 		menu_ban = "Ban",
@@ -40,6 +41,7 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 	if Idstring("schinese"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
 			menu_steam_profile = "Steam资料",
+			menu_epic_profile = "Epic Games资料",
 			menu_hrs_pl = " 小时",
 			menu_hidden_steam_profile = "隐藏资料",
 			menu_suspect_loadout = "装备",
@@ -55,6 +57,7 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 	elseif Idstring("spanish"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
 			menu_steam_profile = "Perfil de Steam",
+			menu_epic_profile = "Perfil de Epic Games",
 			menu_hrs_pl = " hrs.",
 			menu_hidden_steam_profile = "Perfil privado",
 			menu_suspect_loadout = "Equipamiento",
@@ -70,6 +73,7 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 	elseif Idstring("latam"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
 			menu_steam_profile = "Perfil de Steam",
+			menu_epic_profile = "Perfil de Epic Games",
 			menu_hrs_pl = " hrs.",
 			menu_hidden_steam_profile = "Perfil privado",
 			menu_suspect_loadout = "Equipamiento",
@@ -84,9 +88,12 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 		})
 	elseif Idstring("russian"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
-			menu_steam_profile = "Steam Профиль",
+			menu_steam_profile = "Профиль Steam",
+			menu_epic_profile = "Профиль Epic Games",
 			menu_hrs_pl = " ч.",
+			menu_epic_no_profiles = "Аккаунт Epic Games",
 			menu_hidden_steam_profile = "Скрытый Профиль",
+			menu_hours_hidden = "Игровая информация скрыта",
 			menu_suspect_loadout = "Снаряжение",
 			menu_suspect_database = "База данных",
 			menu_ban = "Забанить",
@@ -804,25 +811,21 @@ function CrimeNetGui:create_host_info(job, x, y)
 		w = host_head:w() - 16 * size
 	})
 	avatar_panel:set_center_x(host_head:w() / 2)
+	avatar_panel:set_h(host_head:w() - 16 * size)
+	local avatar = avatar_panel:bitmap({
+		h = avatar_panel:h(),
+		w = avatar_panel:w(),
+		texture = #job.host_id == 32 and "guis/dlcs/shub/textures/epic_player_icon" or "guis/dlcs/shub/textures/steam_player_icon",
+		alpha = 1,
+		blend_mode = "normal"
+	})
+	avatar:set_image(job.host_avatar)
 
-	if #job.host_id ~= 32 then -- Epic uses a 32-character ID; Steam doesn't have a guaranteed single length.
-		avatar_panel:set_h(host_head:w() - 16 * size)
+	BoxGuiObject:new(avatar_panel, {
+		sides = {1, 1, 1, 1}
+	})
 
-		local avatar = avatar_panel:bitmap({
-			h = avatar_panel:h(),
-			w = avatar_panel:w(),
-			texture = "guis/textures/loading/hints/crimenet_fbifiles",
-			alpha = 1,
-			blend_mode = "normal"
-		})
-		avatar:set_image(job.host_avatar)
-
-		BoxGuiObject:new(avatar_panel, {
-			sides = {1, 1, 1, 1}
-		})
-	end
-
-	local steam_username = Steam:username(job.host_id)
+	local steam_username = #job.host_id ~= 32 and  Steam:username(job.host_id) or job.host_name -- Epic uses a 32-character ID; Steam doesn't have a guaranteed single length.
 	local host_nickname = host_head:text({
 		name = "host_nickname",
 		align = "center",
@@ -851,11 +854,12 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local hrs = managers.localization:text("menu_hrs_pl")
 	local hidden = managers.localization:text("menu_hidden_steam_profile")
 	local private = managers.localization:text("menu_hours_hidden")
-	local epic_profile = ""
+	local epic_profile = managers.localization:text("menu_epic_no_profiles")
 
 	local function set_playtime_to_center(str, text, panel)
 		if alive(text) then
 			text:set_text(str)
+			redone_text_length(text, host_head)
 			fine_text(text)
 			text:set_center_x(panel:center_x())
 		end
@@ -965,7 +969,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local steam_profile = btn_panel:text({
 		name = "steam_profile",
 		align = "center",
-		text = #job.host_id == 32 and "" or managers.localization:text("menu_steam_profile"),
+		text = #job.host_id == 32 and managers.localization:text("menu_epic_profile") or managers.localization:text("menu_steam_profile"),
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font,
 		color = tweak_data.screen_colors.button_stage_2
@@ -1156,7 +1160,7 @@ function CrimeNetGui:recreate_host_info(job)
 	if alive(self._host_info_panel) then
 		local mods_panel = self._host_info_panel:child("mods_panel")
 		local host_nickname = self._host_info_panel:child("host_head"):child("host_nickname"):text()
-		local x, y = self._host_info_panel:center_x(), self._host_info_panel:center_y()
+		local l, t = self._host_info_panel:left() + self._host_info_panel:child("job_info"):w() + 5, self._host_info_panel:top()
 		local pos, up_visible, down_visible = nil, false, true
 
 		if alive(mods_panel) then
@@ -1168,7 +1172,7 @@ function CrimeNetGui:recreate_host_info(job)
 		self:destroy_host_info()
 		self:create_host_info(job)
 
-		self._host_info_panel:set_center(x, y)
+		self._host_info_panel:set_lefttop(l - self._host_info_panel:child("job_info"):w() - 5, t)
 
 		if self._host_info_panel:top() < self._panel:top() then
 			self._host_info_panel:set_top(self._panel:top())
@@ -1280,7 +1284,8 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 					managers.network.matchmake:join_server_with_check(self._local_job.room_id, false, self._local_job)
 				elseif btn_panel:child("steam_profile"):inside(x, y) then
 					managers.menu_component:post_event("menu_enter")
-					Steam:overlay_activate("url", "https://steamcommunity.com/profiles/"..self._local_job.host_id)
+					local url = #self._local_job.host_id ~= 32 and "https://steamcommunity.com/profiles/"..self._local_job.host_id or "https://store.epicgames.com/en-US/u/"..self._local_job.host_id
+					Steam:overlay_activate("url", url)
 				elseif btn_panel:child("loadout"):inside(x, y) then
 					managers.menu_component:post_event("menu_enter")
 					Steam:overlay_activate("url", "http://fbi.paydaythegame.com/loadout/"..self._local_job.host_id)
@@ -1308,7 +1313,7 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 									ban:set_w(btn_panel:w())
 								end
 							else
-								managers.ban_list:ban(self._local_job.host_id, Steam:username(self._local_job.host_id))
+								managers.ban_list:ban(self._local_job.host_id, #self._local_job.host_id ~= 32 and Steam:username(self._local_job.host_id) or tostring(self._local_job.host_id))
 								if self._host_info_panel and ban then
 									ban:set_text(managers.localization:text("menu_unban"))
 									fine_text(ban)
@@ -1394,7 +1399,7 @@ function CrimeNetGui:mouse_moved(o, x, y)
 
 			local btn_panel = self._host_info_panel:child("btn_panel")
 			local playtime = self._host_info_panel:child("host_head"):child("playtime")
-			local hidden_profile = playtime:text() == managers.localization:text("menu_hidden_steam_profile")
+			local hidden_profile = playtime:text() == managers.localization:text("menu_hidden_steam_profile") or playtime:text() == managers.localization:text("menu_hours_hidden")
 
 			button(btn_panel:child("join"))
 			button(btn_panel:child("steam_profile"))

@@ -1450,8 +1450,10 @@ Hooks:PostHook(CrimeNetGui, "update_server_job", "ECN_update_job_info", function
 	local job_index = data.id or i
 	local job = self._jobs[job_index]
 
-	if job and type(job) == "table" and job.host_id == self._local_job.host_id and job ~= self._local_job then
-		self._local_job = job
-		self:recreate_host_info(job)
+	if self._local_job and type(self._local_job) == "table" and job and type(job) == "table" then
+		if job.host_id == self._local_job.host_id and job ~= self._local_job then
+			self._local_job = job
+			self:recreate_host_info(job)
+		end
 	end
 end)

@@ -634,7 +634,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local completed = job_info:text({
 		x = 8 * size,
 		name = "completed",
-		text = managers.localization:text("menu_stat_job_completed"):gsub("$stat;.", ""),
+		text = managers.localization:text("daily_discord_progress") .. ": ",
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		color = tweak_data.screen_colors.text:with_alpha(0.675)

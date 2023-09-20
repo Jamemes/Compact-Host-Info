@@ -388,6 +388,14 @@ local function peer_modlist_highlight_injector(mod, config)
 	end
 end
 
+local function open_url(url)
+	if Steam then
+		Steam:overlay_activate("url", url)
+	else
+		os.execute("start " .. url)
+	end
+end
+
 function CrimeNetGui:dialog_move_mod_to_list(button, mods_panel, scroll_panel, mods_table, up, down, x, y)
 	for id, mod in pairs(mods_table) do
 		local btn = scroll_panel:child(mod.name .. id)
@@ -448,7 +456,7 @@ function CrimeNetGui:dialog_move_mod_to_list(button, mods_panel, scroll_panel, m
 				}
 				managers.system_menu:show(dialog_data)
 			elseif PeerModListHighlights and button == Idstring("1") or button == Idstring("0") then
-				Steam:overlay_activate("url", "https://modworkshop.net/find/mod?q=" .. mod.name .. "&tags=&gid=1")
+				open_url("https://modworkshop.net/find/mod?q=" .. mod.name .. "&tags=&gid=1")
 				managers.menu_component:post_event("menu_enter")
 			end
 		end
@@ -460,7 +468,7 @@ function CrimeNetGui:_create_job_gui(data, type, fixed_x, fixed_y, fixed_locatio
 	local gui_data = orig_gui(self, data, type, fixed_x, fixed_y, fixed_location)
 
 
-	if gui_data.host_id then
+	if Steam and gui_data.host_id then
 		Steam:friend_avatar(2, gui_data.host_id, function(texture)
 			if gui_data.host_avatar ~= texture then
 				gui_data.host_avatar = texture
@@ -825,7 +833,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 		sides = {1, 1, 1, 1}
 	})
 
-	local steam_username = #job.host_id ~= 32 and  Steam:username(job.host_id) or job.host_name -- Epic uses a 32-character ID; Steam doesn't have a guaranteed single length.
+	local steam_username = #job.host_id ~= 32 and Steam and Steam:username(job.host_id) or job.host_name -- Epic uses a 32-character ID; Steam doesn't have a guaranteed single length.
 	local host_nickname = host_head:text({
 		name = "host_nickname",
 		align = "center",
@@ -1269,7 +1277,7 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 			local btn_panel = self._host_info_panel:child("btn_panel")
 			local job_info = self._host_info_panel:child("job_info")
 			local mods_panel = self._host_info_panel:child("mods_panel")
-
+			
 			if host_head:inside(x, y) or btn_panel:inside(x, y) or job_info:inside(x, y) or (mods_panel and mods_panel:inside(x, y)) then
 				self._grabbed_map = nil
 			end
@@ -1285,13 +1293,13 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 				elseif btn_panel:child("steam_profile"):inside(x, y) then
 					managers.menu_component:post_event("menu_enter")
 					local url = #self._local_job.host_id ~= 32 and "https://steamcommunity.com/profiles/"..self._local_job.host_id or "https://store.epicgames.com/en-US/u/"..self._local_job.host_id
-					Steam:overlay_activate("url", url)
+					open_url(url)
 				elseif btn_panel:child("loadout"):inside(x, y) then
 					managers.menu_component:post_event("menu_enter")
-					Steam:overlay_activate("url", "http://fbi.paydaythegame.com/loadout/"..self._local_job.host_id)
+					open_url("http://fbi.paydaythegame.com/loadout/"..self._local_job.host_id)
 				elseif btn_panel:child("database"):inside(x, y) then
 					managers.menu_component:post_event("menu_enter")
-					Steam:overlay_activate("url", "http://fbi.paydaythegame.com/suspect/"..self._local_job.host_id)
+					open_url("http://fbi.paydaythegame.com/suspect/"..self._local_job.host_id)
 				elseif btn_panel:child("ban"):inside(x, y) then
 					managers.menu_component:post_event("menu_enter")
 					local ban = btn_panel:child("ban")
@@ -1299,7 +1307,7 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 					local dialog_data = {
 						title = managers.localization:text(banned and "dialog_sure_to_unban_title" or "dialog_sure_to_ban_title"),
 						text = managers.localization:text(banned and "dialog_sure_to_unban_body" or "dialog_sure_to_kick_ban_body", {
-							USER = Steam:username(self._local_job.host_id) or ""
+							USER = Steam and Steam:username(self._local_job.host_id) or self._local_job.host_name or ""
 						})
 					}
 					local yes_button = {
@@ -1313,7 +1321,7 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 									ban:set_w(btn_panel:w())
 								end
 							else
-								managers.ban_list:ban(self._local_job.host_id, #self._local_job.host_id ~= 32 and Steam:username(self._local_job.host_id) or tostring(self._local_job.host_id))
+								managers.ban_list:ban(self._local_job.host_id, #self._local_job.host_id ~= 32 and Steam and Steam:username(self._local_job.host_id) or self._local_job.host_name or "")
 								if self._host_info_panel and ban then
 									ban:set_text(managers.localization:text("menu_unban"))
 									fine_text(ban)

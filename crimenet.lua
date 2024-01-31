@@ -1208,7 +1208,7 @@ end
 
 local data = CrimeNetGui.check_job_pressed
 function CrimeNetGui:check_job_pressed(x, y)
-	if not managers.menu:is_pc_controller() or (self._closest_job and not self._closest_job.server) then
+	if not managers.menu:is_pc_controller() or self._closest_job and (not self._closest_job.server or self._closest_job.special_node) then
 		return data(self, x, y)
 	end
 end

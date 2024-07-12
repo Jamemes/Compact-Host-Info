@@ -19,6 +19,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 		menu_join = "Join",
 		cji_panel_size = "Panels size",
 		cji_panel_size_desc = "Size of the Info Panels.",
+		cji_mods_panel_cutoff = "Mods List Maximum Width",
+		cji_mods_panel_cutoff_desc = "In case the players decide to rename the mod with a long name.",
 		cji_host_head_size = "Host Info size",
 		cji_host_head_size_desc = "Size of the central panel.",
 		cji_btn_panel_size = "Buttons size",
@@ -51,8 +53,27 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_add = "添加",
 			menu_remove = "移出",
 			menu_join = "加入",
-			-- cji_panel_size = "Panels size",
-			-- cji_panel_size_desc = "Size of the Info Panels.",
+			cji_panel_size = "面板尺寸",
+			cji_panel_size_desc = "信息面板的大小。",
+			cji_mods_panel_cutoff = "模块列表最大宽度",
+			cji_mods_panel_cutoff_desc = "如果玩家决定用长名称重命名模块。",
+			cji_host_head_size = "主机信息大小",
+			cji_host_head_size_desc = "中央面板的尺寸。",
+			cji_btn_panel_size = "按钮尺寸",
+			cji_btn_panel_size_desc = "中央面板下方按钮的大小。 （加入，Steam轮廓等。)",
+			cji_job_info_size = "职位信息大小",
+			cji_job_info_size_desc = "左侧面板的尺寸。",
+			cji_mods_panel_size = "模块列表大小",
+			cji_mods_panel_size_desc = "右侧面板的尺寸。",
+			cji_panel_position = "面板出现",
+			cji_panel_position_desc = "当您选择服务器时，选择面板将出现的位置Crime.Net。",
+			cji_under_cursor = "光标下",
+			cji_lefttop = "左顶",
+			cji_leftbottom = "左下角",
+			cji_centertop = "中心-顶部",
+			cji_centerbottom = "中心-底部",
+			cji_righttop = "右顶",
+			cji_rightbottom = "右下角",
 		})
 	elseif Idstring("spanish"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
@@ -69,8 +90,27 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_join = "Unirse",
 			cji_panel_size = "Tamaño de los paneles",
 			cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
+			cji_mods_panel_cutoff = "Ancho Máximo de la Lista de Modificaciones",
+			cji_mods_panel_cutoff_desc = "En caso de que los jugadores decidan cambiar el nombre del mod con un nombre largo.",
+			cji_host_head_size = "Tamaño de la información del Host",
+			cji_host_head_size_desc = "Tamaño del panel central.",
+			cji_btn_panel_size = "Tamaño de los botones",
+			cji_btn_panel_size_desc = "Tamaño de los botones debajo del panel central. (Unirse, Perfil de Steam, etc.)",
+			cji_job_info_size = "Tamaño de la Información del Trabajo",
+			cji_job_info_size_desc = "Tamaño del panel izquierdo.",
+			cji_mods_panel_size = "Tamaño de la lista de modificaciones",
+			cji_mods_panel_size_desc = "Tamaño del panel derecho.",
+			cji_panel_position = "Aparece el panel",
+			cji_panel_position_desc = "Elija dónde aparecerá el panel, cuando seleccione un servidor en Crime.Net.",
+			cji_under_cursor = "Debajo del Cursor",
+			cji_lefttop = "Arriba a la Izquierda",
+			cji_leftbottom = "Izquierda-Abajo",
+			cji_centertop = "Parte Superior central",
+			cji_centerbottom = "Centro Abajo",
+			cji_righttop = "Arriba a la Derecha",
+			cji_rightbottom = "Abajo a la Derecha",
 		})
-	elseif Idstring("latam"):key() == SystemInfo:language():key() then
+	elseif Idstring("latam"):key() == SystemInfo:language():key() or SystemInfo:language():key() == "37f9903497cc5470" then
 		LocalizationManager:add_localized_strings({
 			menu_steam_profile = "Perfil de Steam",
 			menu_epic_profile = "Perfil de Epic Games",
@@ -85,6 +125,25 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_join = "Unirse",
 			cji_panel_size = "Tamaño de los paneles",
 			cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
+			cji_mods_panel_cutoff = "Lista de modificações Largura máxima",
+			cji_mods_panel_cutoff_desc = "Caso os jogadores decidam renomear o mod com um nome longo.",
+			cji_host_head_size = "Tamanho das informações do Host",
+			cji_host_head_size_desc = "Tamanho do painel central.",
+			cji_btn_panel_size = "Tamanho dos botões",
+			cji_btn_panel_size_desc = "Tamanho dos botões abaixo do painel central. (Entrar, perfil Steam e etc.)",
+			cji_job_info_size = "Job Info tamanho",
+			cji_job_info_size_desc = "Tamanho do painel esquerdo.",
+			cji_mods_panel_size = "Tamanho da lista de modificações",
+			cji_mods_panel_size_desc = "Tamanho do painel direito.",
+			cji_panel_position = "Painel aparecer",
+			cji_panel_position_desc = "Escolha onde o painel aparecerá, ao selecionar um servidor em Crime.Net.",
+			cji_under_cursor = "Sob Cursor",
+			cji_lefttop = "Esquerda Superior",
+			cji_leftbottom = "Inferior Esquerdo",
+			cji_centertop = "Topo Central",
+			cji_centerbottom = "Centro Inferior",
+			cji_righttop = "Direita-Superior",
+			cji_rightbottom = "Inferior Direito",
 		})
 	elseif Idstring("russian"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
@@ -104,6 +163,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_drop_in_stealth_prompt = "По скрытому подходу",
 			cji_panel_size = "Размер панелей",
 			cji_panel_size_desc = "Размер панелей информации.",
+			cji_mods_panel_cutoff = "Макс. ширина списка модификаций",
+			cji_mods_panel_cutoff_desc = "На случай если игроки решат переименовать мод длинным названием.",
 			cji_host_head_size = "Размер Информации о Хосте",
 			cji_host_head_size_desc = "Размер центральной панели.",
 			cji_btn_panel_size = "Размер кнопок",
@@ -156,8 +217,8 @@ Hooks:Add("MenuManagerInitialize", "MenuManagerInitialize_Compact_Info", functio
 end)
 
 Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_Info", function(menu_manager, nodes)
-	function MenuCallbackHandler:set_cji_panel_size_callback(item)
-		Compact_Info.settings.size = tonumber(item:value())
+	function MenuCallbackHandler:set_cji_values_callback(item)
+		Compact_Info.settings[item:parameters().name:gsub("cji_", "")] = tonumber(item:value())
 		Compact_Info:Save()
 	end
 
@@ -174,16 +235,11 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		"cji_rightbottom"
 	}
 
-	function MenuCallbackHandler:set_cji_panel_position_callback(item)
-		Compact_Info.settings.position = tonumber(item:value())
-		Compact_Info:Save()
-	end
-
 	MenuHelper:AddMultipleChoice({
-		id = "cji_panel_position",
+		id = "cji_position",
 		title = "cji_panel_position",
 		desc = "cji_panel_position_desc",
-		callback = "set_cji_panel_position_callback",
+		callback = "set_cji_values_callback",
 		items = items,
 		value = Compact_Info.settings.position or 1,
 		menu_id = menu_id,
@@ -191,14 +247,28 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 	})
 
 	MenuHelper:AddSlider({
-		id = "cji_panel_size",
+		id = "cji_size",
 		title = "cji_panel_size",
 		desc = "cji_panel_size_desc",
-		callback = "set_cji_panel_size_callback",
+		callback = "set_cji_values_callback",
 		value = Compact_Info.settings.size,
 		max = 1.2,
 		min = 0.5,
 		step = 0.1,
+		show_value = true,
+		menu_id = menu_id,
+		priority = 1
+	})
+	
+	MenuHelper:AddSlider({
+		id = "cji_mods_panel_cutoff",
+		title = "cji_mods_panel_cutoff",
+		desc = "cji_mods_panel_cutoff_desc",
+		callback = "set_cji_values_callback",
+		value = Compact_Info.settings.mods_panel_cutoff or 500,
+		max = 500,
+		min = 150,
+		step = 1,
 		show_value = true,
 		menu_id = menu_id,
 		priority = 1
@@ -210,16 +280,11 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		menu_id = menu_id,
 	})
 
-	function MenuCallbackHandler:set_cji_host_head_size_callback(item)
-		Compact_Info.settings.host_head_size = tonumber(item:value())
-		Compact_Info:Save()
-	end
-
 	MenuHelper:AddSlider({
 		id = "cji_host_head_size",
 		title = "cji_host_head_size",
 		desc = "cji_host_head_size_desc",
-		callback = "set_cji_host_head_size_callback",
+		callback = "set_cji_values_callback",
 		value = Compact_Info.settings.host_head_size or 1,
 		max = 1.2,
 		min = 0.5,
@@ -229,16 +294,11 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		priority = -1
 	})
 
-	function MenuCallbackHandler:set_cji_btn_panel_size_callback(item)
-		Compact_Info.settings.btn_panel_size = tonumber(item:value())
-		Compact_Info:Save()
-	end
-
 	MenuHelper:AddSlider({
 		id = "cji_btn_panel_size",
 		title = "cji_btn_panel_size",
 		desc = "cji_btn_panel_size_desc",
-		callback = "set_cji_btn_panel_size_callback",
+		callback = "set_cji_values_callback",
 		value = Compact_Info.settings.btn_panel_size or 1,
 		max = 1.2,
 		min = 0.5,
@@ -248,16 +308,11 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		priority = -2
 	})
 
-	function MenuCallbackHandler:set_cji_job_info_size_callback(item)
-		Compact_Info.settings.job_info_size = tonumber(item:value())
-		Compact_Info:Save()
-	end
-
 	MenuHelper:AddSlider({
 		id = "cji_job_info_size",
 		title = "cji_job_info_size",
 		desc = "cji_job_info_size_desc",
-		callback = "set_cji_job_info_size_callback",
+		callback = "set_cji_values_callback",
 		value = Compact_Info.settings.job_info_size or 1,
 		max = 1.2,
 		min = 0.5,
@@ -267,16 +322,11 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		priority = -3
 	})
 
-	function MenuCallbackHandler:set_cji_mods_panel_size_callback(item)
-		Compact_Info.settings.mods_panel_size = tonumber(item:value())
-		Compact_Info:Save()
-	end
-
 	MenuHelper:AddSlider({
 		id = "cji_mods_panel_size",
 		title = "cji_mods_panel_size",
 		desc = "cji_mods_panel_size_desc",
-		callback = "set_cji_mods_panel_size_callback",
+		callback = "set_cji_values_callback",
 		value = Compact_Info.settings.mods_panel_size or 1,
 		max = 1.2,
 		min = 0.5,
@@ -1058,7 +1108,11 @@ function CrimeNetGui:create_host_info(job, x, y)
 			local scroll_panel = mods_panel:panel({name = "scroll_panel"})
 
 			table.sort(self._fine_mods, function (a, b)
-				return a.mod_rate > b.mod_rate
+				if a.mod_rate ~= b.mod_rate then
+					return a.mod_rate > b.mod_rate
+				end
+				
+				return a.name:lower() < b.name:lower()
 			end)
 
 			local panel_y = 0
@@ -1084,6 +1138,11 @@ function CrimeNetGui:create_host_info(job, x, y)
 				panel_y = panel_y + h
 
 				if w > panel_w then
+					local cutoff = Compact_Info.settings.mods_panel_cutoff or 500
+					if w > cutoff then
+						w = cutoff
+					end
+					
 					panel_w = w
 				end
 

@@ -1086,21 +1086,29 @@ function CrimeNetGui:create_host_info(job, x, y)
 	if job.mods and job.mods ~= "" and job.mods ~= "1" and job.mods ~= "7d66a433be3a1fe2" then
 		self._fine_mods = {}
 		local mods_list = string.split(job.mods, "|")
-
-		for id, mod in pairs(mods_list) do
-			if (id % 2 ~= 0) and string.upper(mod) ~= "SUPERBLT" and string.upper(mod) ~= "BEARDLIB" then
+		
+		local order = 1
+		local mods_config = {}
+		for index, mod in pairs(mods_list) do
+			if index % 2 ~= 0 then
 				local config = {
+					order = order,
 					name = mod,
 					color = tweak_data.screen_colors.text,
 					mod_rate = 0
 				}
-
 				peer_modlist_highlight_injector(mod, config)
-
-				table.insert(self._fine_mods, config)
+				
+				mods_config = config
+				order = order + 1
+			elseif index % 2 == 0 then
+				self._fine_mods[mod] = mods_config
 			end
 		end
-
+		
+		self._fine_mods["base"] = nil
+		self._fine_mods["BeardLib"] = nil
+		
 		if table.size(self._fine_mods) > 0 then
 			local size_value = (Compact_Info.settings.mods_panel_size or 1) * Compact_Info.settings.size
 			local size = size_value < lowest_val and lowest_val or size_value
@@ -1121,7 +1129,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 				local mod = scroll_panel:text({
 					x = 8 * size,
 					y = panel_y + (8 * size),
-					name = mod.name .. id,
+					name = mod.name .. mod.order,
 					vertical = "center",
 					align = "left",
 					blend_mode = "normal",
@@ -1477,7 +1485,21 @@ function CrimeNetGui:mouse_moved(o, x, y)
 			if alive(info:child("mods_panel")) then
 				local scroll_panel, scroll_up, scroll_down = info:child("mods_panel"):child("scroll_panel"), info:child("mods_panel"):child("scroll_up"), info:child("mods_panel"):child("scroll_down")
 				for id, mod in pairs(self._fine_mods) do
-					local btn = scroll_panel:child(mod.name .. id)
+					local btn = scroll_panel:child(mod.name .. mod.order)
+
+					if PeerModListHighlights and alive(btn) then
+						if PeerModListHighlights.settings.include_mod_folder_crimenet and info:child("mods_panel"):inside(x, y) and btn:inside(x, y) then
+							local folder_name = "{" .. id .. "}"
+							if btn:text() ~= folder_name then
+								btn:set_text(folder_name)
+							end
+						else
+							if btn:text() ~= mod.name then
+								btn:set_text(mod.name)
+							end
+						end
+					end
+					
 					if not self._grabbed_map and info:child("mods_panel"):inside(x, y) and btn:inside(x, y) then
 						if btn:color() == mod.color then
 							managers.menu_component:post_event("highlight")

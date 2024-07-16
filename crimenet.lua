@@ -42,38 +42,41 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 
 	if Idstring("schinese"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
+			menu_compact_info = "Compact Host info",
 			menu_steam_profile = "Steam资料",
 			menu_epic_profile = "Epic Games资料",
 			menu_hrs_pl = " 小时",
 			menu_hidden_steam_profile = "隐藏资料",
+			menu_hours_hidden = "已隐藏信息",
+			menu_epic_no_profiles = "Epic Games账号",
 			menu_suspect_loadout = "装备",
-			menu_suspect_database = "数据",
+			menu_suspect_database = "嫌疑人档案",
 			menu_ban = "封禁",
 			menu_unban = "解除封禁",
 			menu_add = "添加",
-			menu_remove = "移出",
+			menu_remove = "移除",
 			menu_join = "加入",
-			cji_panel_size = "面板尺寸",
-			cji_panel_size_desc = "信息面板的大小。",
-			cji_mods_panel_cutoff = "模块列表最大宽度",
-			cji_mods_panel_cutoff_desc = "如果玩家决定用长名称重命名模块。",
+			cji_panel_size = "界面大小",
+			cji_panel_size_desc = "信息界面的大小",
+			cji_mods_panel_cutoff = "模组列表最大宽度",
+			cji_mods_panel_cutoff_desc = "以防玩家模组名称过长。",
 			cji_host_head_size = "主机信息大小",
-			cji_host_head_size_desc = "中央面板的尺寸。",
-			cji_btn_panel_size = "按钮尺寸",
-			cji_btn_panel_size_desc = "中央面板下方按钮的大小。 （加入，Steam轮廓等。)",
-			cji_job_info_size = "职位信息大小",
-			cji_job_info_size_desc = "左侧面板的尺寸。",
-			cji_mods_panel_size = "模块列表大小",
-			cji_mods_panel_size_desc = "右侧面板的尺寸。",
-			cji_panel_position = "面板出现",
-			cji_panel_position_desc = "当您选择服务器时，选择面板将出现的位置Crime.Net。",
-			cji_under_cursor = "光标下",
-			cji_lefttop = "左顶",
-			cji_leftbottom = "左下角",
-			cji_centertop = "中心-顶部",
-			cji_centerbottom = "中心-底部",
-			cji_righttop = "右顶",
-			cji_rightbottom = "右下角",
+			cji_host_head_size_desc = "主机信息界面的大小。",
+			cji_btn_panel_size = "按钮大小",
+			cji_btn_panel_size_desc = "在主界面下的按钮大小。(加入、STEAM资料等)。",
+			cji_job_info_size = "合约信息大小",
+			cji_job_info_size_desc = "左侧界面的大小。",
+			cji_mods_panel_size = "模组列表大小",
+			cji_mods_panel_size_desc = "模组列表界面大小。",
+			cji_panel_position = "显示界面",
+			cji_panel_position_desc = "选择你在Crime.Net上选择服务器时，界面出现的位置。",
+			cji_under_cursor = "光标下方",
+			cji_lefttop = "左上方",
+			cji_leftbottom = "左下方",
+			cji_centertop = "正上方",
+			cji_centerbottom = "正下方",
+			cji_righttop = "右上方",
+			cji_rightbottom = "右下方",
 		})
 	elseif Idstring("spanish"):key() == SystemInfo:language():key() then
 		LocalizationManager:add_localized_strings({
@@ -450,7 +453,7 @@ function CrimeNetGui:dialog_move_mod_to_list(button, mods_panel, scroll_panel, m
 	for id, mod in pairs(mods_table) do
 		local btn = scroll_panel:child(mod.name .. id)
 		if alive(btn) and mods_panel:inside(x, y) and btn:inside(x, y) and not (up:inside(x, y) or down:inside(x, y)) then
-			if PeerModListHighlights and button == Idstring("0") then
+			if button == Idstring("0") then
 				local list = PeerModListHighlights.lists
 				local function move_mod_in_list(mod, first, second, third)
 					local file = io.open(SavePath .. 'PMLH_save.txt', 'w+')
@@ -564,6 +567,9 @@ function CrimeNetGui:create_host_info(job, x, y)
 		return
 	end
 	
+	local job_tweak = tweak_data.narrative:job_data(job.job_id)
+	job.host_id = job.host_id or ""
+	
 	self._prevent_accident_clicks = true
 	managers.menu:active_menu().logic:selected_node():parameters().block_back = true
 
@@ -583,13 +589,13 @@ function CrimeNetGui:create_host_info(job, x, y)
 		x = 8 * size,
 		y = 8 * size,
 		name = "job_name",
-		text = job.server_data.level_name or "NO JOB",
+		text = job.server_data.level_name or managers.localization:text(job_tweak.name_id) or "NO JOB",
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size
 	})
 	fine_text(job_name)
 
-	local csrank = tonumber(job.crime_spree) or 0
+	local csrank = tonumber(job.crime_spree) or -1
 	local skirmish_wave = nil
 	if job.is_skirmish then
 		local wave = job.skirmish_wave
@@ -632,6 +638,59 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(experience)
 	experience:set_top(difficulty_name:bottom())
+	
+	local job_ghost_mul = managers.job:get_ghost_bonus() or 0
+	local ghost_xp_text = nil
+
+	if job_ghost_mul ~= 0 then
+		local job_ghost = math.round(job_ghost_mul * 100)
+		local job_ghost_string = tostring(math.abs(job_ghost))
+		local ghost_color = tweak_data.screen_colors.ghost_color
+
+		if job_ghost == 0 and job_ghost_mul ~= 0 then
+			job_ghost_string = string.format("%0.2f", math.abs(job_ghost_mul * 100))
+		end
+
+		local text_prefix = job_ghost_mul < 0 and "-" or "+"
+		local text_string = " (" .. text_prefix .. job_ghost_string .. "%)"
+		ghost_xp_text = job_info:text({
+			blend_mode = "add",
+			font = tweak_data.menu.pd2_small_font,
+			font_size = tweak_data.menu.pd2_small_font_size * size,
+			text = text_string,
+			color = ghost_color
+		})
+		
+		fine_text(ghost_xp_text)
+		ghost_xp_text:set_position(experience:right(), experience:top())
+	end
+	
+	local job_heat = managers.job:_get_job_heat(job.job_id) or 0
+	local job_heat_mul = managers.job:heat_to_experience_multiplier(job_heat) - 1 or 0
+	local heat_color = managers.job:get_heat_color(job_heat)
+	local heat_xp_text = nil
+
+	if job_heat_mul ~= 0 then
+		job_heat = math.round(job_heat_mul * 100)
+		local job_heat_string = tostring(math.abs(job_heat))
+
+		if job_heat == 0 and job_heat_mul ~= 0 then
+			job_heat_string = string.format("%0.2f", math.abs(job_heat_mul * 100))
+		end
+
+		local text_prefix = job_heat_mul < 0 and "-" or "+"
+		local text_string = " (" .. text_prefix .. job_heat_string .. "%)"
+		heat_xp_text = job_info:text({
+			blend_mode = "add",
+			font = tweak_data.menu.pd2_small_font,
+			font_size = tweak_data.menu.pd2_small_font_size * size,
+			text = text_string,
+			color = heat_color
+		})
+		
+		fine_text(heat_xp_text)
+		heat_xp_text:set_position(math.round(ghost_xp_text and ghost_xp_text:right() or experience:right()), experience:top())
+	end
 
 	local total_payout, _, _ = job.job_id and managers.money:get_contract_money_by_stars(math.ceil(tweak_data.narrative:job_data(job.job_id).jc / 10), job.difficulty_id - 2, #tweak_data.narrative:job_chain(job.job_id), job.job_id) or 0, 0, 0
 	local money = job_info:text({
@@ -709,13 +768,9 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	fine_text(comp_num)
 	comp_num:set_lefttop(completed:right(), money:bottom())
-	
+
 	local server_data = job.server_data
-	local tactics = {
-		managers.localization:text("menu_plan_loud"),
-		managers.localization:text("menu_plan_stealth"),
-		[-1.0] = ""
-	}
+	
 	local job_plan_header = job_info:text({
 		x = 8 * size,
 		name = "job_plan_header",
@@ -727,6 +782,11 @@ function CrimeNetGui:create_host_info(job, x, y)
 	fine_text(job_plan_header)
 	job_plan_header:set_top(completed:bottom())
 
+	local tactics = {
+		managers.localization:text("menu_plan_loud"),
+		managers.localization:text("menu_plan_stealth"),
+		[-1.0] = ""
+	}
 	local job_plan = job_info:text({
 		x = 8 * size,
 		name = "job_plan",
@@ -747,7 +807,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local drop_in_header = job_info:text({
 		x = 8 * size,
 		name = "drop_in_header",
-		text = server_data.drop_in ~= 1 and managers.localization:text("menu_toggle_drop_in") .. ": " or "",
+		text = server_data.drop_in and server_data.drop_in ~= 1 and managers.localization:text("menu_toggle_drop_in") .. ": " or "",
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		color = tweak_data.screen_colors.text:with_alpha(0.675)
@@ -769,7 +829,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local kick_header = job_info:text({
 		x = 8 * size,
 		name = "kick_header",
-		text = server_data.kick_option ~= 1 and managers.localization:text("menu_kicking_allowed_option") .. ": " or "",
+		text = server_data.kick_option and server_data.kick_option ~= 1 and managers.localization:text("menu_kicking_allowed_option") .. ": " or "",
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		color = tweak_data.screen_colors.text:with_alpha(0.675)
@@ -795,7 +855,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local rep_permission_header = job_info:text({
 		x = 8 * size,
 		name = "rep_permission_header",
-		text = server_data.min_level > 0 and managers.localization:text("menu_reputation_permission") .. ": " or "",
+		text = server_data.min_level and server_data.min_level > 0 and managers.localization:text("menu_reputation_permission") .. ": " or "",
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		color = tweak_data.screen_colors.text:with_alpha(0.675)
@@ -806,7 +866,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local rep_permission = job_info:text({
 		x = 8 * size,
 		name = "rep_permission",
-		text = server_data.min_level > 0 and tostring(server_data.min_level) or "",
+		text = server_data.min_level and server_data.min_level > 0 and tostring(server_data.min_level) or "",
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size
 	})
@@ -834,6 +894,8 @@ function CrimeNetGui:create_host_info(job, x, y)
 			difficulty_name:right(),
 			one_down:right(),
 			experience:right(),
+			ghost_xp_text and ghost_xp_text:right() or 0,
+			heat_xp_text and heat_xp_text:right() or 0,
 			money:right(),
 			completed:right(),
 			comp_num:right(),
@@ -870,6 +932,25 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 	avatar_panel:set_center_x(host_head:w() / 2)
 	avatar_panel:set_h(host_head:w() - 16 * size)
+	
+	if job.host_id == "" then
+		if job_tweak.contract_visuals and job_tweak.contract_visuals.preview_image then
+			local data = job_tweak.contract_visuals.preview_image
+			local path, rect = nil
+
+			if data.id then
+				path = "guis/dlcs/" .. (data.folder or "bro") .. "/textures/pd2/crimenet/" .. data.id
+				rect = data.rect
+			elseif data.icon then
+				path, rect = tweak_data.hud_icons:get_icon_data(data.icon)
+			end
+
+			if path and DB:has(Idstring("texture"), path) then
+				job.host_avatar = path
+			end
+		end
+	end
+	
 	local avatar = avatar_panel:bitmap({
 		h = avatar_panel:h(),
 		w = avatar_panel:w(),
@@ -887,7 +968,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local host_nickname = host_head:text({
 		name = "host_nickname",
 		align = "center",
-		text = tostring(steam_username ~= "" and steam_username or (job.host_name ~= nil and job.host_name) or "Unknown"),
+		text = job.host_id == "" and managers.localization:text(tweak_data.narrative.contacts[job_tweak.contact].name_id) or tostring((steam_username ~= "" and steam_username) or (job.host_name ~= nil and job.host_name) or "Unknown"),
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font
 	})
@@ -900,7 +981,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local playtime = host_head:text({
 		name = "playtime",
 		align = "center",
-		text = managers.localization:text("menu_http_loading"),
+		text = job.host_id == "" and managers.localization:text(job_tweak.name_id) or managers.localization:text("menu_http_loading") or "",
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font,
 		color = tweak_data.screen_colors.achievement_grey
@@ -927,33 +1008,35 @@ function CrimeNetGui:create_host_info(job, x, y)
 		self._players_playtime_by_id = {}
 	end
 
-	if #job.host_id ~= 32 then
-		if table.has(self._players_playtime_by_id, job.host_id) then
-			local play_hours = self._players_playtime_by_id[job.host_id]
-			set_playtime_to_center(play_hours .. ((play_hours ~= hidden and play_hours ~= private) and hrs or ""), playtime, avatar_panel)
-		else
-			dohttpreq('http://steamcommunity.com/profiles/' .. job.host_id .. '/games/?xml=1', function(page)
-				if type(page) == "string" then
-					local game = "<appID>218620</appID>"
-					if string.find(tostring(page), game) then
-						local _, pd2 = string.find(tostring(page), game)
-						local _, st = string.find(tostring(page), "<hoursOnRecord>", pd2)
-						local en, _ = string.find(tostring(page), "</hoursOnRecord>", st)
-						local hours = string.sub(tostring(page), st + 1, en - 1)
+	if job.host_id ~= "" then
+		if #job.host_id ~= 32 then
+			if table.has(self._players_playtime_by_id, job.host_id) then
+				local play_hours = self._players_playtime_by_id[job.host_id]
+				set_playtime_to_center(play_hours .. ((play_hours ~= hidden and play_hours ~= private) and hrs or ""), playtime, avatar_panel)
+			else
+				dohttpreq('http://steamcommunity.com/profiles/' .. job.host_id .. '/games/?xml=1', function(page)
+					if type(page) == "string" then
+						local game = "<appID>218620</appID>"
+						if string.find(tostring(page), game) then
+							local _, pd2 = string.find(tostring(page), game)
+							local _, st = string.find(tostring(page), "<hoursOnRecord>", pd2)
+							local en, _ = string.find(tostring(page), "</hoursOnRecord>", st)
+							local hours = string.sub(tostring(page), st + 1, en - 1)
 
-						set_playtime_to_center(hours .. hrs, playtime, avatar_panel)
-						self._players_playtime_by_id[job.host_id] = hours
-					elseif string.find(tostring(page), "is private") then -- No lang identifier in query, so result should be in English and make this work.
-						set_playtime_to_center(hidden, playtime, avatar_panel)
-					else
-						set_playtime_to_center(private, playtime, avatar_panel)
-						self._players_playtime_by_id[job.host_id] = private
+							set_playtime_to_center(hours .. hrs, playtime, avatar_panel)
+							self._players_playtime_by_id[job.host_id] = hours
+						elseif string.find(tostring(page), "is private") then -- No lang identifier in query, so result should be in English and make this work.
+							set_playtime_to_center(hidden, playtime, avatar_panel)
+						else
+							set_playtime_to_center(private, playtime, avatar_panel)
+							self._players_playtime_by_id[job.host_id] = private
+						end
 					end
-				end
-			end)
+				end)
+			end
+		else
+			set_playtime_to_center(epic_profile, playtime, avatar_panel)
 		end
-	else
-		set_playtime_to_center(epic_profile, playtime, avatar_panel)
 	end
 
 	local in_lobby = managers.localization:text("menu_lobby_server_state_in_lobby")
@@ -961,7 +1044,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local server_state = host_head:text({
 		name = "server_state",
 		align = "center",
-		text = job.server_data.state_name,
+		text = job.server_data.state_name or "",
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font,
 		color = job.server_data.state_name == in_lobby and tweak_data.screen_colors.in_lobby or job.server_data.state_name == in_game and tweak_data.screen_colors.in_game or tweak_data.screen_colors.text
@@ -969,7 +1052,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	fine_text(server_state)
 	server_state:set_top(playtime:bottom() + 2)
 	server_state:set_center_x(avatar_panel:center_x())
-
+	
 	local peers_panel = host_head:panel({
 		name = "peers_panel"
 	})
@@ -977,25 +1060,28 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local cx = 0
 	local ch = 0
 	local cw = 0
-	for i = 1, 4 do
-		local player_marker = peers_panel:bitmap({
-			texture = "guis/textures/pd2/skilltree/icons_atlas",
-			texture_rect = {407.5, 262, 17, 54},
-			h = 32 * size,
-			w = 10 * size,
-			blend_mode = "normal",
-			layer = 2,
-			name = tostring(i),
-			alpha = i <= job.num_plrs and 1 or 0.15
-		})
+	
+	if job.num_plrs then
+		for i = 1, 4 do
+			local player_marker = peers_panel:bitmap({
+				texture = "guis/textures/pd2/skilltree/icons_atlas",
+				texture_rect = {407.5, 262, 17, 54},
+				h = 32 * size,
+				w = 10 * size,
+				blend_mode = "normal",
+				layer = 2,
+				name = tostring(i),
+				alpha = i <= job.num_plrs and 1 or 0.15
+			})
 
-		if i > 1 then
-			player_marker:set_left(cx + (3 * size))
+			if i > 1 then
+				player_marker:set_left(cx + (3 * size))
+			end
+
+			cx = player_marker:right()
+			cw = cw + player_marker:w() + (3 * size)
+			ch = player_marker:h()
 		end
-
-		cx = player_marker:right()
-		cw = cw + player_marker:w() + (3 * size)
-		ch = player_marker:h()
 	end
 
 	peers_panel:set_size(cw - (3 * size), ch)
@@ -1016,7 +1102,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 		y = 10,
 		name = "join",
 		align = "center",
-		text = managers.localization:text("menu_join"),
+		text = job.host_id == "" and managers.localization:text("menu_create_lobby") or managers.localization:text("menu_join"),
 		font_size = (tweak_data.menu.pd2_large_font_size / 1.5) * size,
 		font = tweak_data.menu.pd2_large_font,
 		color = tweak_data.screen_colors.button_stage_2
@@ -1027,7 +1113,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local steam_profile = btn_panel:text({
 		name = "steam_profile",
 		align = "center",
-		text = #job.host_id == 32 and managers.localization:text("menu_epic_profile") or managers.localization:text("menu_steam_profile"),
+		text = job.host_id == "" and "" or #job.host_id == 32 and managers.localization:text("menu_epic_profile") or managers.localization:text("menu_steam_profile"),
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font,
 		color = tweak_data.screen_colors.button_stage_2
@@ -1039,7 +1125,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local loadout = btn_panel:text({
 		name = "loadout",
 		align = "center",
-		text = #job.host_id == 32 and "" or managers.localization:text("menu_suspect_loadout"),
+		text = (job.host_id == "" or #job.host_id == 32) and "" or managers.localization:text("menu_suspect_loadout"),
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font,
 		color = tweak_data.screen_colors.button_stage_2
@@ -1051,7 +1137,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local database = btn_panel:text({
 		name = "database",
 		align = "center",
-		text = #job.host_id == 32 and "" or managers.localization:text("menu_suspect_database"),
+		text = (job.host_id == "" or #job.host_id == 32) and "" or managers.localization:text("menu_suspect_database"),
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font,
 		color = tweak_data.screen_colors.button_stage_2
@@ -1063,7 +1149,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local ban = btn_panel:text({
 		name = "ban",
 		align = "center",
-		text = managers.ban_list:banned(job.host_id) and managers.localization:text("menu_unban") or managers.localization:text("menu_ban"),
+		text = job.host_id == "" and "" or managers.ban_list:banned(job.host_id) and managers.localization:text("menu_unban") or managers.localization:text("menu_ban"),
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font,
 		color = tweak_data.screen_colors.button_stage_2
@@ -1085,29 +1171,22 @@ function CrimeNetGui:create_host_info(job, x, y)
 
 	if job.mods and job.mods ~= "" and job.mods ~= "1" and job.mods ~= "7d66a433be3a1fe2" then
 		self._fine_mods = {}
-		local mods_list = string.split(job.mods, "|")
 		
-		local order = 1
-		local mods_config = {}
-		for index, mod in pairs(mods_list) do
-			if index % 2 ~= 0 then
-				local config = {
-					order = order,
-					name = mod,
-					color = tweak_data.screen_colors.text,
-					mod_rate = 0
-				}
-				peer_modlist_highlight_injector(mod, config)
-				
-				mods_config = config
-				order = order + 1
-			elseif index % 2 == 0 then
-				self._fine_mods[mod] = mods_config
+		local mods_list = string.split(job.mods, "|")
+		for i = 1, #mods_list, 2 do
+			local name = mods_list[i] or ""
+			local config = {
+				name = name,
+				folder = mods_list[i + 1] or "",
+				color = tweak_data.screen_colors.text,
+				mod_rate = 0
+			}
+			peer_modlist_highlight_injector(name, config)
+			
+			if name ~= "SuperBLT" and name ~= "BeardLib" then
+				table.insert(self._fine_mods, config)
 			end
 		end
-		
-		self._fine_mods["base"] = nil
-		self._fine_mods["BeardLib"] = nil
 		
 		if table.size(self._fine_mods) > 0 then
 			local size_value = (Compact_Info.settings.mods_panel_size or 1) * Compact_Info.settings.size
@@ -1129,7 +1208,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 				local mod = scroll_panel:text({
 					x = 8 * size,
 					y = panel_y + (8 * size),
-					name = mod.name .. mod.order,
+					name = mod.name .. id,
 					vertical = "center",
 					align = "left",
 					blend_mode = "normal",
@@ -1192,6 +1271,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 
 			mods_panel:set_lefttop(host_head:right() + 5, host_head:top())
 			self._host_info_panel:set_w(mods_panel:right())
+			
 		end
 	end
 
@@ -1273,11 +1353,7 @@ function CrimeNetGui:recreate_host_info(job)
 	end
 end
 
-local data = CrimeNetGui.check_job_pressed
 function CrimeNetGui:check_job_pressed(x, y)
-	if not managers.menu:is_pc_controller() or self._closest_job and (not self._closest_job.server or self._closest_job.special_node) then
-		return data(self, x, y)
-	end
 end
 
 Hooks:PostHook(CrimeNetGui, "mouse_released", "ECN_stop_moving_host_info", function(self, ...)
@@ -1295,9 +1371,7 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 		return
 	end
 
-	self._closest_host = self._closest_job and self._closest_job.host_id
-
-	if self._closest_host then
+	if self._closest_job then
 		self._local_job = self._closest_job
 	end
 
@@ -1307,7 +1381,7 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 			managers.menu_component:post_event("menu_exit")
 		end
 
-		if self._closest_host and button == Idstring("0") then
+		if self._closest_job and button == Idstring("0") then
 			if alive(self._host_info_panel) then
 				self:recreate_host_info(self._local_job)
 			else
@@ -1356,7 +1430,11 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 
 				if btn_panel:child("join"):inside(x, y) then
 					managers.menu_component:post_event("menu_enter")
-					managers.network.matchmake:join_server_with_check(self._local_job.room_id, false, self._local_job)
+					if self._local_job.room_id then
+						managers.network.matchmake:join_server_with_check(self._local_job.room_id, false, self._local_job)
+					else
+						MenuCallbackHandler:start_job(self._local_job)
+					end
 				elseif btn_panel:child("steam_profile"):inside(x, y) then
 					managers.menu_component:post_event("menu_enter")
 					local url = #self._local_job.host_id ~= 32 and "https://steamcommunity.com/profiles/"..self._local_job.host_id or "https://store.epicgames.com/en-US/u/"..self._local_job.host_id
@@ -1485,11 +1563,11 @@ function CrimeNetGui:mouse_moved(o, x, y)
 			if alive(info:child("mods_panel")) then
 				local scroll_panel, scroll_up, scroll_down = info:child("mods_panel"):child("scroll_panel"), info:child("mods_panel"):child("scroll_up"), info:child("mods_panel"):child("scroll_down")
 				for id, mod in pairs(self._fine_mods) do
-					local btn = scroll_panel:child(mod.name .. mod.order)
+					local btn = scroll_panel:child(mod.name .. id)
 
 					if PeerModListHighlights and alive(btn) then
 						if PeerModListHighlights.settings.include_mod_folder_crimenet and info:child("mods_panel"):inside(x, y) and btn:inside(x, y) then
-							local folder_name = "{" .. id .. "}"
+							local folder_name = "{" .. mod.folder .. "}"
 							if btn:text() ~= folder_name then
 								btn:set_text(folder_name)
 							end
@@ -1539,7 +1617,7 @@ Hooks:PostHook(CrimeNetGui, "update_server_job", "ECN_update_job_info", function
 	local job_index = data.id or i
 	local job = self._jobs[job_index]
 
-	if self._local_job and type(self._local_job) == "table" and job and type(job) == "table" then
+	if (job and type(job) == "table" and table.size(job) ~= 0) and (self._local_job and type(self._local_job) == "table") then
 		if job.host_id == self._local_job.host_id and job ~= self._local_job then
 			self._local_job = job
 			self:recreate_host_info(job)

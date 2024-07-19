@@ -1,7 +1,7 @@
 [
     {
         "ident": "compact_info",
-        "version": "6.2",
+        "version": "7",
         "patchnotes_url": "https://github.com/Jamemes/Compact-Host-Info/commits/main",
         "download_url": "https://github.com/Jamemes/Compact-Host-Info/archive/refs/heads/main.zip"
     }

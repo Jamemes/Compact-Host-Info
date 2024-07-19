@@ -449,119 +449,6 @@ local function open_url(url)
 	end
 end
 
-function CrimeNetGui:dialog_move_mod_to_list(button, mods_panel, scroll_panel, mods_table, up, down, x, y)
-	for id, mod in pairs(mods_table) do
-		local btn = scroll_panel:child(mod.name .. id)
-		if alive(btn) and mods_panel:inside(x, y) and btn:inside(x, y) and not (up:inside(x, y) or down:inside(x, y)) then
-			if button == Idstring("0") then
-				local list = PeerModListHighlights.lists
-				local function move_mod_in_list(mod, first, second, third)
-					local file = io.open(SavePath .. 'PMLH_save.txt', 'w+')
-					if file then
-						if not table.contains(first, string.upper(mod)) then
-							table.insert(first, string.upper(mod))
-						else
-							table.delete(first, string.upper(mod))
-						end
-
-						if table.contains(second, string.upper(mod)) then
-							table.delete(second, string.upper(mod))
-						elseif table.contains(third, string.upper(mod)) then
-							table.delete(third, string.upper(mod))
-						end
-
-						file:write(json.encode(PeerModListHighlights.lists))
-						file:close()
-					end
-
-					self:recreate_host_info(self._local_job)
-				end
-
-				local dialog_data = {
-					title = managers.localization:text("PMLH_adjustmenutitle"),
-					text = managers.localization:text("PMLH_adjustmenuquestion") .. "\n\n" .. tostring(mod.name)
-				}
-
-				dialog_data.button_list = {
-					{
-						text = "("..managers.localization:text("PMLH_list1name")..") "..managers.localization:text(table.contains(list.greenlist, string.upper(mod.name)) and "menu_remove" or "menu_add"),
-						callback_func = function()
-							move_mod_in_list(mod.name, list.greenlist, list.yellowlist, list.redlist)
-						end
-					},
-					{
-						text = "("..managers.localization:text("PMLH_list2name")..") "..managers.localization:text(table.contains(list.yellowlist, string.upper(mod.name)) and "menu_remove" or "menu_add"),
-						callback_func = function()
-							move_mod_in_list(mod.name, list.yellowlist, list.redlist, list.greenlist)
-						end
-					},
-					{
-						text = "("..managers.localization:text("PMLH_list3name")..") "..managers.localization:text(table.contains(list.redlist, string.upper(mod.name)) and "menu_remove" or "menu_add"),
-						callback_func = function()
-							move_mod_in_list(mod.name, list.redlist, list.greenlist, list.yellowlist)
-						end
-					},
-					{},
-					{
-						text = managers.localization:text("dialog_cancel"),
-						cancel_button = true
-					}
-				}
-				managers.system_menu:show(dialog_data)
-			elseif PeerModListHighlights and button == Idstring("1") or button == Idstring("0") then
-				open_url("https://modworkshop.net/find/mod?q=" .. mod.name .. "&tags=&gid=1")
-				managers.menu_component:post_event("menu_enter")
-			end
-		end
-	end
-end
-
-local orig_gui = CrimeNetGui._create_job_gui
-function CrimeNetGui:_create_job_gui(data, type, fixed_x, fixed_y, fixed_location)
-	local gui_data = orig_gui(self, data, type, fixed_x, fixed_y, fixed_location)
-
-
-	if Steam and gui_data.host_id then
-		Steam:friend_avatar(2, gui_data.host_id, function(texture)
-			if gui_data.host_avatar ~= texture then
-				gui_data.host_avatar = texture
-			end
-		end)
-	end
-
-	return gui_data
-end
-
-local data = CrimeNetGui.update_all_job_guis
-function CrimeNetGui:update_all_job_guis(closest_job, inside_any_job)
-	if self._inside_info and closest_job and closest_job.marker_panel:child("select_panel"):inside(managers.mouse_pointer:modified_mouse_pos()) then
-		closest_job = {}
-		inside_any_job = false
-	end
-
-	self._closest_job = closest_job
-
-	data(self, closest_job, inside_any_job)
-end
-
-local data = CrimeNetGui.special_btn_pressed
-function CrimeNetGui:special_btn_pressed(button)
-	if Input:keyboard():pressed(Idstring("esc")) and self._host_info_panel then
-		self:destroy_host_info()
-	end
-
-	return data(self, button)
-end
-
-local data = CrimeNetGui.mouse_pressed
-function CrimeNetGui:mouse_pressed(o, button, x, y)
-	local pressed = data(self, o, button, x, y)
-
-	self:press_mouse_on_info_panels(button, x, y)
-
-	return pressed
-end
-
 function CrimeNetGui:create_host_info(job, x, y)
 	if self._host_info_panel then
 		return
@@ -1275,40 +1162,11 @@ function CrimeNetGui:create_host_info(job, x, y)
 		end
 	end
 
-	self:move_host_info(x, y)
+	self:move_host_info(x, y, nil, nil, "new")
 
 	setup_panel(job_info)
 	setup_panel(host_head)
 	setup_panel(btn_panel)
-end
-
-function CrimeNetGui:move_host_info(x, y)
-	if alive(self._host_info_panel) and x and y then
-		local ax = self._host_info_panel:child("host_head"):center_x()
-		local ay = self._host_info_panel:child("host_head"):center_y()
-		self._host_info_panel:set_lefttop(x - ax, y - ay + (ay / 3))
-
-		if self._host_info_panel:top() < self._panel:top() then
-			self._host_info_panel:set_top(self._panel:top())
-		elseif self._host_info_panel:bottom() > self._panel:bottom() - 60 then
-			self._host_info_panel:set_bottom(self._panel:bottom() - 60)
-		end
-
-		if self._host_info_panel:left() < self._panel:left() + 60 then
-			self._host_info_panel:set_left(self._panel:left() + 60)
-		elseif self._host_info_panel:right() > self._panel:right() then
-			self._host_info_panel:set_right(self._panel:right() - 5)
-		end
-	end
-end
-
-function CrimeNetGui:destroy_host_info()
-	if alive(self._host_info_panel) then
-		managers.menu:active_menu().logic:selected_node():parameters().block_back = false
-		managers.menu_component:post_event("menu_exit")
-		self._panel:remove(self._host_info_panel)
-		self._host_info_panel = nil
-	end
 end
 
 function CrimeNetGui:recreate_host_info(job)
@@ -1353,35 +1211,152 @@ function CrimeNetGui:recreate_host_info(job)
 	end
 end
 
-function CrimeNetGui:check_job_pressed(x, y)
+function CrimeNetGui:move_host_info(x, y, ax, ay, pos)
+	x = x or 0
+	y = y or 0
+	ax = ax or 0
+	ay = ay or 0
+
+	if not self._grabbed_coords then
+		self._grabbed_coords = {x = x - ax, y = y - ay}
+	end
+	
+	if alive(self._host_info_panel) then
+		if pos == "new" then
+			ax = self._host_info_panel:child("host_head"):center_x()
+			ay = self._host_info_panel:child("host_head"):center_y()
+			self._host_info_panel:set_lefttop(x - ax, y - ay + (ay / 3))
+		else
+			self._host_info_panel:set_center(x - self._grabbed_coords.x, y - self._grabbed_coords.y)
+		end
+		
+		if self._host_info_panel:top() < self._panel:top() then
+			self._host_info_panel:set_top(self._panel:top())
+		elseif self._host_info_panel:bottom() > self._panel:bottom() - 60 then
+			self._host_info_panel:set_bottom(self._panel:bottom() - 60)
+		end
+
+		if self._host_info_panel:left() < self._panel:left() + 60 then
+			self._host_info_panel:set_left(self._panel:left() + 60)
+		elseif self._host_info_panel:right() > self._panel:right() then
+			self._host_info_panel:set_right(self._panel:right() - 5)
+		end
+	end
 end
 
-Hooks:PostHook(CrimeNetGui, "mouse_released", "ECN_stop_moving_host_info", function(self, ...)
-	if self._prevent_accident_clicks then
-		self._prevent_accident_clicks = nil
+function CrimeNetGui:destroy_host_info()
+	if alive(self._host_info_panel) then
+		managers.menu:active_menu().logic:selected_node():parameters().block_back = false
+		managers.menu_component:post_event("menu_exit")
+		self._panel:remove(self._host_info_panel)
+		self._host_info_panel = nil
 	end
+end
 
-	if self._host_head_hold then
-		self._host_head_hold = nil
+function CrimeNetGui:dialog_move_mod_to_list(button, mods_panel, scroll_panel, mods_table, up, down, x, y)
+	for id, mod in pairs(mods_table) do
+		local btn = scroll_panel:child(mod.name .. id)
+		if alive(btn) and mods_panel:inside(x, y) and btn:inside(x, y) and not (up:inside(x, y) or down:inside(x, y)) then
+			if button == Idstring("0") then
+				self._hold_compact_panel = false
+				local list = PeerModListHighlights.lists
+				local function move_mod_in_list(mod, first, second, third)
+					local file = io.open(SavePath .. 'PMLH_save.txt', 'w+')
+					if file then
+						if not table.contains(first, string.upper(mod)) then
+							table.insert(first, string.upper(mod))
+						else
+							table.delete(first, string.upper(mod))
+						end
+
+						if table.contains(second, string.upper(mod)) then
+							table.delete(second, string.upper(mod))
+						elseif table.contains(third, string.upper(mod)) then
+							table.delete(third, string.upper(mod))
+						end
+
+						file:write(json.encode(PeerModListHighlights.lists))
+						file:close()
+					end
+
+					self:recreate_host_info(self._local_job)
+				end
+
+				local dialog_data = {
+					title = managers.localization:text("PMLH_adjustmenutitle"),
+					text = managers.localization:text("PMLH_adjustmenuquestion") .. "\n\n" .. tostring(mod.name)
+				}
+
+				dialog_data.button_list = {
+					{
+						text = "("..managers.localization:text("PMLH_list1name")..") "..managers.localization:text(table.contains(list.greenlist, string.upper(mod.name)) and "menu_remove" or "menu_add"),
+						callback_func = function()
+							move_mod_in_list(mod.name, list.greenlist, list.yellowlist, list.redlist)
+						end
+					},
+					{
+						text = "("..managers.localization:text("PMLH_list2name")..") "..managers.localization:text(table.contains(list.yellowlist, string.upper(mod.name)) and "menu_remove" or "menu_add"),
+						callback_func = function()
+							move_mod_in_list(mod.name, list.yellowlist, list.redlist, list.greenlist)
+						end
+					},
+					{
+						text = "("..managers.localization:text("PMLH_list3name")..") "..managers.localization:text(table.contains(list.redlist, string.upper(mod.name)) and "menu_remove" or "menu_add"),
+						callback_func = function()
+							move_mod_in_list(mod.name, list.redlist, list.greenlist, list.yellowlist)
+						end
+					},
+					{},
+					{
+						text = managers.localization:text("dialog_cancel"),
+						cancel_button = true
+					}
+				}
+				managers.system_menu:show(dialog_data)
+			elseif PeerModListHighlights and button == Idstring("1") or button == Idstring("0") then
+				open_url("https://modworkshop.net/find/mod?q=" .. mod.name .. "&tags=&gid=1")
+				managers.menu_component:post_event("menu_enter")
+			end
+		end
 	end
-end)
+end
 
 function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 	if not self:input_focus() then
 		return
 	end
-
-	if self._closest_job then
-		self._local_job = self._closest_job
+	
+	local scroll_speed = 15
+	if tostring(button) == "Idstring(@ID8056b7956bde8b70@)" then
+		button = Idstring("0")
+		self._prevent_accident_clicks = false
+		self._grabbed_coords = nil
+	elseif tostring(button) == "Idstring(@IDd95354c7c30900a0@)" then
+		button = Idstring("1")
+		if not self._hold_compact_panel then
+			self._inside_info = nil
+		end
+		self._prevent_accident_clicks = false
+		self._hold_compact_panel = nil
+		self._grabbed_coords = nil
+	elseif tostring(button) == "Idstring(@IDedad8678cae3162c@)" then
+		button = Idstring("mouse wheel up")
+		scroll_speed = 50
+	elseif tostring(button) == "Idstring(@IDdb322f73dadd0be4@)" then
+		button = Idstring("mouse wheel down")
+		scroll_speed = 50
 	end
 
-	if not self._inside_info then
-		if alive(self._host_info_panel) and button == Idstring("1") then
-			self:destroy_host_info()
-			managers.menu_component:post_event("menu_exit")
-		end
+	
+	if alive(self._host_info_panel) and button == Idstring("1") and not self._inside_info then
+		self:destroy_host_info()
+		managers.menu_component:post_event("menu_exit")
+	end
+	
+	if self._closest_job and self._closest_job.marker_panel:child("select_panel"):inside(managers.mouse_pointer:modified_mouse_pos()) and not self._inside_info then
+		self._local_job = self._closest_job
 
-		if self._closest_job and button == Idstring("0") then
+		if self._local_job and button == Idstring("0") then
 			if alive(self._host_info_panel) then
 				self:recreate_host_info(self._local_job)
 			else
@@ -1411,7 +1386,8 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 			managers.menu_component:post_event("menu_enter")
 		end
 	end
-
+	
+	local job = self._local_job
 	if self._host_info_panel then
 		if button == Idstring("0") then
 			local host_head = self._host_info_panel:child("host_head")
@@ -1424,67 +1400,76 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 			end
 
 			if not self._prevent_accident_clicks then
-				if host_head:inside(x, y) then
-					self._host_head_hold = true
+				if self._inside_info then
+					self._hold_compact_panel = not self._hold_compact_panel and true or false
 				end
-
-				if btn_panel:child("join"):inside(x, y) then
-					managers.menu_component:post_event("menu_enter")
-					if self._local_job.room_id then
-						managers.network.matchmake:join_server_with_check(self._local_job.room_id, false, self._local_job)
-					else
-						MenuCallbackHandler:start_job(self._local_job)
-					end
-				elseif btn_panel:child("steam_profile"):inside(x, y) then
-					managers.menu_component:post_event("menu_enter")
-					local url = #self._local_job.host_id ~= 32 and "https://steamcommunity.com/profiles/"..self._local_job.host_id or "https://store.epicgames.com/en-US/u/"..self._local_job.host_id
-					open_url(url)
-				elseif btn_panel:child("loadout"):inside(x, y) then
-					managers.menu_component:post_event("menu_enter")
-					open_url("http://fbi.paydaythegame.com/loadout/"..self._local_job.host_id)
-				elseif btn_panel:child("database"):inside(x, y) then
-					managers.menu_component:post_event("menu_enter")
-					open_url("http://fbi.paydaythegame.com/suspect/"..self._local_job.host_id)
-				elseif btn_panel:child("ban"):inside(x, y) then
-					managers.menu_component:post_event("menu_enter")
-					local ban = btn_panel:child("ban")
-					local banned = managers.ban_list:banned(self._local_job.host_id)
-					local dialog_data = {
-						title = managers.localization:text(banned and "dialog_sure_to_unban_title" or "dialog_sure_to_ban_title"),
-						text = managers.localization:text(banned and "dialog_sure_to_unban_body" or "dialog_sure_to_kick_ban_body", {
-							USER = Steam and Steam:username(self._local_job.host_id) or self._local_job.host_name or ""
-						})
-					}
-					local yes_button = {
-						text = managers.localization:text("dialog_yes"),
-						callback_func = function()
-							if managers.ban_list:banned(self._local_job.host_id) then
-								managers.ban_list:unban(self._local_job.host_id)
-								if self._host_info_panel and ban then
-									ban:set_text(managers.localization:text("menu_ban"))
-									fine_text(ban)
-									ban:set_w(btn_panel:w())
-								end
-							else
-								managers.ban_list:ban(self._local_job.host_id, #self._local_job.host_id ~= 32 and Steam and Steam:username(self._local_job.host_id) or self._local_job.host_name or "")
-								if self._host_info_panel and ban then
-									ban:set_text(managers.localization:text("menu_unban"))
-									fine_text(ban)
-									ban:set_w(btn_panel:w())
+				
+				if job.host_id and job.host_id ~= "" then
+					if btn_panel:child("join"):inside(x, y) then
+						managers.menu_component:post_event("menu_enter")
+						managers.network.matchmake:join_server_with_check(job.room_id, false, job)
+						self._hold_compact_panel = false
+					elseif btn_panel:child("steam_profile"):inside(x, y) then
+						self._hold_compact_panel = false
+						managers.menu_component:post_event("menu_enter")
+						local url = #job.host_id ~= 32 and "https://steamcommunity.com/profiles/" .. job.host_id or "https://store.epicgames.com/en-US/u/" .. job.host_id
+						open_url(url)
+					elseif btn_panel:child("loadout"):inside(x, y) then
+						self._hold_compact_panel = false
+						managers.menu_component:post_event("menu_enter")
+						open_url("http://fbi.paydaythegame.com/loadout/" .. job.host_id)
+					elseif btn_panel:child("database"):inside(x, y) then
+						self._hold_compact_panel = false
+						managers.menu_component:post_event("menu_enter")
+						open_url("http://fbi.paydaythegame.com/suspect/" .. job.host_id)
+					elseif btn_panel:child("ban"):inside(x, y) then
+						self._hold_compact_panel = false
+						managers.menu_component:post_event("menu_enter")
+						local ban = btn_panel:child("ban")
+						local banned = managers.ban_list:banned(job.host_id)
+						local dialog_data = {
+							title = managers.localization:text(banned and "dialog_sure_to_unban_title" or "dialog_sure_to_ban_title"),
+							text = managers.localization:text(banned and "dialog_sure_to_unban_body" or "dialog_sure_to_kick_ban_body", {
+								USER = Steam and Steam:username(job.host_id) or job.host_name or ""
+							})
+						}
+						local yes_button = {
+							text = managers.localization:text("dialog_yes"),
+							callback_func = function()
+								if managers.ban_list:banned(job.host_id) then
+									managers.ban_list:unban(job.host_id)
+									if self._host_info_panel and ban then
+										ban:set_text(managers.localization:text("menu_ban"))
+										fine_text(ban)
+										ban:set_w(btn_panel:w())
+									end
+								else
+									managers.ban_list:ban(job.host_id, #job.host_id ~= 32 and Steam and Steam:username(job.host_id) or job.host_name or "")
+									if self._host_info_panel and ban then
+										ban:set_text(managers.localization:text("menu_unban"))
+										fine_text(ban)
+										ban:set_w(btn_panel:w())
+									end
 								end
 							end
-						end
-					}
-					local no_button = {
-						text = managers.localization:text("dialog_no"),
-						cancel_button = true
-					}
-					dialog_data.button_list = {
-						yes_button,
-						no_button
-					}
+						}
+						local no_button = {
+							text = managers.localization:text("dialog_no"),
+							cancel_button = true
+						}
+						dialog_data.button_list = {
+							yes_button,
+							no_button
+						}
 
-					managers.system_menu:show(dialog_data)
+						managers.system_menu:show(dialog_data)
+					end
+				elseif not job.host_id or job.host_id == "" then
+					if btn_panel:child("join"):inside(x, y) then
+						self._hold_compact_panel = false
+						managers.menu_component:post_event("menu_enter")
+						MenuCallbackHandler:start_job(job)
+					end
 				end
 			end
 		end
@@ -1500,16 +1485,17 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 		if inside_mods and mods_panel:child("scroll_panel"):h() > mods_panel:h() then
 			local scroll_panel, scroll_up, scroll_down = mods_panel and mods_panel:child("scroll_panel"), mods_panel:child("scroll_up"), mods_panel:child("scroll_down")
 			if button == Idstring("mouse wheel up") or scroll_up:inside(x, y) and button == Idstring("0") then
+				self._hold_compact_panel = false
+				scroll_panel:set_y(scroll_panel:y() + scroll_speed)
 				if scroll_panel:top() >= -12 then
 					scroll_panel:set_top(0)
-				else
-					scroll_panel:set_y(scroll_panel:y() + 12)
 				end
 			elseif button == Idstring("mouse wheel down") or scroll_down:inside(x, y) and button == Idstring("0") then
+				self._hold_compact_panel = false
+				scroll_panel:set_y(scroll_panel:y() - scroll_speed)
+				
 				if scroll_panel:bottom() <= mods_panel:h() + 12 then
 					scroll_panel:set_bottom(mods_panel:h())
-				else
-					scroll_panel:set_y(scroll_panel:y() - 12)
 				end
 			end
 
@@ -1525,15 +1511,15 @@ function CrimeNetGui:mouse_moved(o, x, y)
 
 	local info = self._host_info_panel
 	self._inside_info = info and (info:child("host_head"):inside(x, y) or info:child("btn_panel"):inside(x, y) or info:child("job_info"):inside(x, y) or (info:child("mods_panel") and info:child("mods_panel"):inside(x, y)))
-
+	self._tweak_data.controller.snap_distance = self._inside_info and 0 or 50
+	
 	if self:input_focus() then
-		if not self._grabbed_map and self._inside_info then
-			used, pointer = true, "arrow"
-		end
-
 		if alive(info) then
-			if self._host_head_hold then
-				self:move_host_info(x, y)
+			if self._hold_compact_panel then
+				self:move_host_info(x, y, info:center())
+				used, pointer = true, "grab"
+			elseif not self._hold_compact_panel and self._inside_info then
+				used, pointer = true, "hand"
 			end
 
 			local function button(btn, unactive)
@@ -1600,6 +1586,61 @@ function CrimeNetGui:mouse_moved(o, x, y)
 	return used, pointer
 end
 
+local orig_gui = CrimeNetGui._create_job_gui
+function CrimeNetGui:_create_job_gui(data, type, fixed_x, fixed_y, fixed_location)
+	local gui_data = orig_gui(self, data, type, fixed_x, fixed_y, fixed_location)
+	if Steam and gui_data.host_id then
+		Steam:friend_avatar(2, gui_data.host_id, function(texture)
+			if gui_data.host_avatar ~= texture then
+				gui_data.host_avatar = texture
+			end
+		end)
+	end
+
+	return gui_data
+end
+
+local data = CrimeNetGui.update_all_job_guis
+function CrimeNetGui:update_all_job_guis(closest_job, inside_any_job)
+	if self._inside_info then
+		inside_any_job = false
+		
+		if closest_job then
+			closest_job.mouse_over = 1
+		end
+	end
+	
+	self._closest_job = closest_job
+
+	data(self, closest_job, inside_any_job)
+end
+
+local data = CrimeNetGui.mouse_pressed
+function CrimeNetGui:mouse_pressed(o, button, x, y)
+	local pressed = data(self, o, button, x, y)
+	
+	self:press_mouse_on_info_panels(button, x, y)
+	
+	return pressed
+end
+
+local data = CrimeNetGui.special_btn_pressed
+function CrimeNetGui:special_btn_pressed(button)
+	if Input:keyboard():pressed(Idstring("esc")) and self._host_info_panel then
+		self:destroy_host_info()
+	end
+
+	self:press_mouse_on_info_panels(button, managers.mouse_pointer:modified_mouse_pos())
+	log(tostring(button))
+	return data(self, button)
+end
+
+Hooks:PostHook(CrimeNetGui, "mouse_released", "ECN_stop_moving_host_info", function(self, ...)
+	self._prevent_accident_clicks = nil
+	self._hold_compact_panel = nil
+	self._grabbed_coords = nil
+end)
+
 local data = CrimeNetGui._set_zoom
 function CrimeNetGui:_set_zoom(zoom, x, y)
 	if alive(self._host_info_panel) and self._host_info_panel:child("mods_panel") then
@@ -1617,10 +1658,13 @@ Hooks:PostHook(CrimeNetGui, "update_server_job", "ECN_update_job_info", function
 	local job_index = data.id or i
 	local job = self._jobs[job_index]
 
-	if (job and type(job) == "table" and table.size(job) ~= 0) and (self._local_job and type(self._local_job) == "table") then
+	if (job and type(job) == "table" and job.host_id) and (self._local_job and type(self._local_job) == "table" and self._local_job.host_id) then
 		if job.host_id == self._local_job.host_id and job ~= self._local_job then
 			self._local_job = job
-			self:recreate_host_info(job)
+			self:recreate_host_info(self._local_job)
 		end
 	end
 end)
+
+function CrimeNetGui:check_job_pressed(x, y)
+end

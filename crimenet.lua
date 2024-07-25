@@ -19,6 +19,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 		menu_join = "Join",
 		cji_panel_size = "Panels size",
 		cji_panel_size_desc = "Size of the Info Panels.",
+		cji_panel_on_jobs = "Compact info on contracts",
+		cji_panel_on_jobs_desc = "Enable compact info on pop-up contracts in Crime.NET.",
 		cji_mods_panel_cutoff = "Mods List Maximum Width",
 		cji_mods_panel_cutoff_desc = "In case the players decide to rename the mod with a long name.",
 		cji_host_head_size = "Host Info size",
@@ -58,6 +60,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_join = "加入",
 			cji_panel_size = "界面大小",
 			cji_panel_size_desc = "信息界面的大小",
+			cji_panel_on_jobs = "合约资料紧凑",
+			cji_panel_on_jobs_desc = "在弹出式合同中启用紧凑信息Crime.NET。",
 			cji_mods_panel_cutoff = "模组列表最大宽度",
 			cji_mods_panel_cutoff_desc = "以防玩家模组名称过长。",
 			cji_host_head_size = "主机信息大小",
@@ -93,6 +97,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_join = "Unirse",
 			cji_panel_size = "Tamaño de los paneles",
 			cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
+			cji_panel_on_jobs = "Información compacta sobre contratos",
+			cji_panel_on_jobs_desc = "Habilite la información compacta en contratos emergentes en Crime.NET.",
 			cji_mods_panel_cutoff = "Ancho Máximo de la Lista de Modificaciones",
 			cji_mods_panel_cutoff_desc = "En caso de que los jugadores decidan cambiar el nombre del mod con un nombre largo.",
 			cji_host_head_size = "Tamaño de la información del Host",
@@ -128,6 +134,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_join = "Unirse",
 			cji_panel_size = "Tamaño de los paneles",
 			cji_panel_size_desc = "Establecer el tamaño de los paneles de información",
+			cji_panel_on_jobs = "Informações compactas sobre Contratos",
+			cji_panel_on_jobs_desc = "Habilite informações compactas em contratos pop-up em Crime.NET.",
 			cji_mods_panel_cutoff = "Lista de modificações Largura máxima",
 			cji_mods_panel_cutoff_desc = "Caso os jogadores decidam renomear o mod com um nome longo.",
 			cji_host_head_size = "Tamanho das informações do Host",
@@ -166,6 +174,8 @@ Hooks:Add("LocalizationManagerPostInit", "CrimeNET_Enhanced_loc", function(...)
 			menu_drop_in_stealth_prompt = "По скрытому подходу",
 			cji_panel_size = "Размер панелей",
 			cji_panel_size_desc = "Размер панелей информации.",
+			cji_panel_on_jobs = "Компактная инфо. на контрактах",
+			cji_panel_on_jobs_desc = "Включить компактную инфо. на всплывающих контрактах в Crime.NET.",
 			cji_mods_panel_cutoff = "Макс. ширина списка модификаций",
 			cji_mods_panel_cutoff_desc = "На случай если игроки решат переименовать мод длинным названием.",
 			cji_host_head_size = "Размер Информации о Хосте",
@@ -209,7 +219,8 @@ function Compact_Info:Load()
 		file:close()
 	else
 		self.settings = {
-			size = 0.85
+			size = 0.85,
+			panel_on_jobs = true
 		}
 		self:Save()
 	end
@@ -222,6 +233,11 @@ end)
 Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_Info", function(menu_manager, nodes)
 	function MenuCallbackHandler:set_cji_values_callback(item)
 		Compact_Info.settings[item:parameters().name:gsub("cji_", "")] = tonumber(item:value())
+		Compact_Info:Save()
+	end
+	
+	function MenuCallbackHandler:set_cji_toggle_callback(item)
+		Compact_Info.settings[item:parameters().name:gsub("cji_", "")] = item:value() == "on" and true or nil
 		Compact_Info:Save()
 	end
 
@@ -238,6 +254,16 @@ Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenus_Compact_In
 		"cji_rightbottom"
 	}
 
+	MenuHelper:AddToggle({
+		id = "cji_panel_on_jobs",
+		title = "cji_panel_on_jobs",
+		desc = "cji_panel_on_jobs_desc",
+		callback = "set_cji_toggle_callback",
+		value = Compact_Info.settings.panel_on_jobs or false,
+		menu_id = menu_id,
+		priority = 5,
+	})
+	
 	MenuHelper:AddMultipleChoice({
 		id = "cji_position",
 		title = "cji_panel_position",
@@ -456,8 +482,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	
 	local job_tweak = tweak_data.narrative:job_data(job.job_id)
 	job.host_id = job.host_id or ""
-	
-	self._prevent_accident_clicks = true
+
 	managers.menu:active_menu().logic:selected_node():parameters().block_back = true
 
 	self._host_info_panel = self._panel:panel({
@@ -1080,7 +1105,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 			local size = size_value < lowest_val and lowest_val or size_value
 			local mods_panel = self._host_info_panel:panel({name = "mods_panel"})
 			local scroll_panel = mods_panel:panel({name = "scroll_panel"})
-
+			
 			table.sort(self._fine_mods, function (a, b)
 				if a.mod_rate ~= b.mod_rate then
 					return a.mod_rate > b.mod_rate
@@ -1158,7 +1183,6 @@ function CrimeNetGui:create_host_info(job, x, y)
 
 			mods_panel:set_lefttop(host_head:right() + 5, host_head:top())
 			self._host_info_panel:set_w(mods_panel:right())
-			
 		end
 	end
 
@@ -1326,65 +1350,38 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 		return
 	end
 	
+	local trigger_scroll = false
 	local scroll_speed = 15
 	if tostring(button) == "Idstring(@ID8056b7956bde8b70@)" then
 		button = Idstring("0")
-		self._prevent_accident_clicks = false
 		self._grabbed_coords = nil
+		self._accident_click_on_btns = nil
 	elseif tostring(button) == "Idstring(@IDd95354c7c30900a0@)" then
 		button = Idstring("1")
 		if not self._hold_compact_panel then
 			self._inside_info = nil
 		end
-		self._prevent_accident_clicks = false
 		self._hold_compact_panel = nil
 		self._grabbed_coords = nil
+		self._accident_click_on_btns = nil
 	elseif tostring(button) == "Idstring(@IDedad8678cae3162c@)" then
 		button = Idstring("mouse wheel up")
+		trigger_scroll = true
 		scroll_speed = 50
 	elseif tostring(button) == "Idstring(@IDdb322f73dadd0be4@)" then
 		button = Idstring("mouse wheel down")
+		trigger_scroll = true
 		scroll_speed = 50
 	end
 
+	if self._accident_click_on_btns then
+		self._accident_click_on_btns = nil
+		return
+	end
 	
 	if alive(self._host_info_panel) and button == Idstring("1") and not self._inside_info then
 		self:destroy_host_info()
 		managers.menu_component:post_event("menu_exit")
-	end
-	
-	if self._closest_job and self._closest_job.marker_panel:child("select_panel"):inside(managers.mouse_pointer:modified_mouse_pos()) and not self._inside_info then
-		self._local_job = self._closest_job
-
-		if self._local_job and button == Idstring("0") then
-			if alive(self._host_info_panel) then
-				self:recreate_host_info(self._local_job)
-			else
-				local pos = Compact_Info.settings.position
-				if pos == 2 then
-					x = 0
-					y = 75
-				elseif pos == 3 then
-					x = 0
-					y = self._panel:h()
-				elseif pos == 4 then
-					x = self._panel:w() / 2
-					y = 75
-				elseif pos == 5 then
-					x = self._panel:w() / 2
-					y = self._panel:h()
-				elseif pos == 6 then
-					x = self._panel:w()
-					y = 75
-				elseif pos == 7 then
-					x = self._panel:w()
-					y = self._panel:h()
-				end
-
-				self:create_host_info(self._local_job, x, y)
-			end
-			managers.menu_component:post_event("menu_enter")
-		end
 	end
 	
 	local job = self._local_job
@@ -1399,90 +1396,93 @@ function CrimeNetGui:press_mouse_on_info_panels(button, x, y)
 				self._grabbed_map = nil
 			end
 
-			if not self._prevent_accident_clicks then
-				if self._inside_info then
-					self._hold_compact_panel = not self._hold_compact_panel and true or false
-				end
-				
-				if job.host_id and job.host_id ~= "" then
-					if btn_panel:child("join"):inside(x, y) then
-						managers.menu_component:post_event("menu_enter")
-						managers.network.matchmake:join_server_with_check(job.room_id, false, job)
-						self._hold_compact_panel = false
-					elseif btn_panel:child("steam_profile"):inside(x, y) then
-						self._hold_compact_panel = false
-						managers.menu_component:post_event("menu_enter")
-						local url = #job.host_id ~= 32 and "https://steamcommunity.com/profiles/" .. job.host_id or "https://store.epicgames.com/en-US/u/" .. job.host_id
-						open_url(url)
-					elseif btn_panel:child("loadout"):inside(x, y) then
-						self._hold_compact_panel = false
-						managers.menu_component:post_event("menu_enter")
-						open_url("http://fbi.paydaythegame.com/loadout/" .. job.host_id)
-					elseif btn_panel:child("database"):inside(x, y) then
-						self._hold_compact_panel = false
-						managers.menu_component:post_event("menu_enter")
-						open_url("http://fbi.paydaythegame.com/suspect/" .. job.host_id)
-					elseif btn_panel:child("ban"):inside(x, y) then
-						self._hold_compact_panel = false
-						managers.menu_component:post_event("menu_enter")
-						local ban = btn_panel:child("ban")
-						local banned = managers.ban_list:banned(job.host_id)
-						local dialog_data = {
-							title = managers.localization:text(banned and "dialog_sure_to_unban_title" or "dialog_sure_to_ban_title"),
-							text = managers.localization:text(banned and "dialog_sure_to_unban_body" or "dialog_sure_to_kick_ban_body", {
-								USER = Steam and Steam:username(job.host_id) or job.host_name or ""
-							})
-						}
-						local yes_button = {
-							text = managers.localization:text("dialog_yes"),
-							callback_func = function()
-								if managers.ban_list:banned(job.host_id) then
-									managers.ban_list:unban(job.host_id)
-									if self._host_info_panel and ban then
-										ban:set_text(managers.localization:text("menu_ban"))
-										fine_text(ban)
-										ban:set_w(btn_panel:w())
-									end
-								else
-									managers.ban_list:ban(job.host_id, #job.host_id ~= 32 and Steam and Steam:username(job.host_id) or job.host_name or "")
-									if self._host_info_panel and ban then
-										ban:set_text(managers.localization:text("menu_unban"))
-										fine_text(ban)
-										ban:set_w(btn_panel:w())
-									end
+			if self._inside_info then
+				self._hold_compact_panel = not self._hold_compact_panel and true or false
+			end
+			
+			if job.host_id and job.host_id ~= "" then
+				if btn_panel:child("join"):inside(x, y) then
+					managers.menu_component:post_event("menu_enter")
+					managers.network.matchmake:join_server_with_check(job.room_id, false, job)
+					self._hold_compact_panel = false
+				elseif btn_panel:child("steam_profile"):inside(x, y) then
+					self._hold_compact_panel = false
+					managers.menu_component:post_event("menu_enter")
+					local url = #job.host_id ~= 32 and "https://steamcommunity.com/profiles/" .. job.host_id or "https://store.epicgames.com/en-US/u/" .. job.host_id
+					open_url(url)
+				elseif btn_panel:child("loadout"):inside(x, y) then
+					self._hold_compact_panel = false
+					managers.menu_component:post_event("menu_enter")
+					open_url("http://fbi.paydaythegame.com/loadout/" .. job.host_id)
+				elseif btn_panel:child("database"):inside(x, y) then
+					self._hold_compact_panel = false
+					managers.menu_component:post_event("menu_enter")
+					open_url("http://fbi.paydaythegame.com/suspect/" .. job.host_id)
+				elseif btn_panel:child("ban"):inside(x, y) then
+					self._hold_compact_panel = false
+					managers.menu_component:post_event("menu_enter")
+					local ban = btn_panel:child("ban")
+					local banned = managers.ban_list:banned(job.host_id)
+					local dialog_data = {
+						title = managers.localization:text(banned and "dialog_sure_to_unban_title" or "dialog_sure_to_ban_title"),
+						text = managers.localization:text(banned and "dialog_sure_to_unban_body" or "dialog_sure_to_kick_ban_body", {
+							USER = Steam and Steam:username(job.host_id) or job.host_name or ""
+						})
+					}
+					local yes_button = {
+						text = managers.localization:text("dialog_yes"),
+						callback_func = function()
+							if managers.ban_list:banned(job.host_id) then
+								managers.ban_list:unban(job.host_id)
+								if self._host_info_panel and ban then
+									ban:set_text(managers.localization:text("menu_ban"))
+									fine_text(ban)
+									ban:set_w(btn_panel:w())
+								end
+							else
+								managers.ban_list:ban(job.host_id, #job.host_id ~= 32 and Steam and Steam:username(job.host_id) or job.host_name or "")
+								if self._host_info_panel and ban then
+									ban:set_text(managers.localization:text("menu_unban"))
+									fine_text(ban)
+									ban:set_w(btn_panel:w())
 								end
 							end
-						}
-						local no_button = {
-							text = managers.localization:text("dialog_no"),
-							cancel_button = true
-						}
-						dialog_data.button_list = {
-							yes_button,
-							no_button
-						}
+						end
+					}
+					local no_button = {
+						text = managers.localization:text("dialog_no"),
+						cancel_button = true
+					}
+					dialog_data.button_list = {
+						yes_button,
+						no_button
+					}
 
-						managers.system_menu:show(dialog_data)
-					end
-				elseif not job.host_id or job.host_id == "" then
-					if btn_panel:child("join"):inside(x, y) then
-						self._hold_compact_panel = false
-						managers.menu_component:post_event("menu_enter")
-						MenuCallbackHandler:start_job(job)
-					end
+					managers.system_menu:show(dialog_data)
+				end
+			elseif not job.host_id or job.host_id == "" then
+				if btn_panel:child("join"):inside(x, y) then
+					self._hold_compact_panel = false
+					managers.menu_component:post_event("menu_enter")
+					MenuCallbackHandler:start_job(job)
 				end
 			end
 		end
 
 		local mods_panel = self._host_info_panel:child("mods_panel")
-		if alive(mods_panel) and not self._prevent_accident_clicks then
+		if alive(mods_panel) then
 			local scroll_panel, scroll_up, scroll_down = mods_panel:child("scroll_panel"), mods_panel:child("scroll_up"), mods_panel:child("scroll_down")
 			self:dialog_move_mod_to_list(button, mods_panel, scroll_panel, self._fine_mods, scroll_up, scroll_down, x, y)
 		end
 
 		local mods_panel = self._host_info_panel:child("mods_panel")
 		local inside_mods = mods_panel and mods_panel:inside(x, y)
-		if inside_mods and mods_panel:child("scroll_panel"):h() > mods_panel:h() then
+		
+		if trigger_scroll then
+			inside_mods = true
+		end
+
+		if mods_panel and mods_panel:child("scroll_panel"):h() > mods_panel:h() and inside_mods then
 			local scroll_panel, scroll_up, scroll_down = mods_panel and mods_panel:child("scroll_panel"), mods_panel:child("scroll_up"), mods_panel:child("scroll_down")
 			if button == Idstring("mouse wheel up") or scroll_up:inside(x, y) and button == Idstring("0") then
 				self._hold_compact_panel = false
@@ -1609,8 +1609,6 @@ function CrimeNetGui:update_all_job_guis(closest_job, inside_any_job)
 			closest_job.mouse_over = 1
 		end
 	end
-	
-	self._closest_job = closest_job
 
 	data(self, closest_job, inside_any_job)
 end
@@ -1631,12 +1629,11 @@ function CrimeNetGui:special_btn_pressed(button)
 	end
 
 	self:press_mouse_on_info_panels(button, managers.mouse_pointer:modified_mouse_pos())
-	log(tostring(button))
+
 	return data(self, button)
 end
 
 Hooks:PostHook(CrimeNetGui, "mouse_released", "ECN_stop_moving_host_info", function(self, ...)
-	self._prevent_accident_clicks = nil
 	self._hold_compact_panel = nil
 	self._grabbed_coords = nil
 end)
@@ -1645,8 +1642,8 @@ local data = CrimeNetGui._set_zoom
 function CrimeNetGui:_set_zoom(zoom, x, y)
 	if alive(self._host_info_panel) and self._host_info_panel:child("mods_panel") then
 		local mods_panel = self._host_info_panel:child("mods_panel")
-		local scroll_panel, scroll_up, scroll_down = mods_panel:child("scroll_panel"), mods_panel:child("scroll_up"), mods_panel:child("scroll_down")
-		if scroll_panel:inside(managers.mouse_pointer:modified_mouse_pos()) and (scroll_up:visible() or scroll_down:visible()) then
+		local scroll_up, scroll_down = mods_panel:child("scroll_panel"), mods_panel:child("scroll_up"), mods_panel:child("scroll_down")
+		if mods_panel:inside(managers.mouse_pointer:modified_mouse_pos()) and (scroll_up:visible() or scroll_down:visible()) then
 			return
 		end
 	end
@@ -1667,4 +1664,110 @@ Hooks:PostHook(CrimeNetGui, "update_server_job", "ECN_update_job_info", function
 end)
 
 function CrimeNetGui:check_job_pressed(x, y)
+	for id, job in pairs(self._jobs) do
+		if job.mouse_over == 1 then
+			job.expanded = not job.expanded
+			local job_data = tweak_data.narrative:job_data(job.job_id)
+			local data = {
+				difficulty = job.difficulty,
+				difficulty_id = job.difficulty_id,
+				one_down = job.one_down,
+				job_id = job.job_id,
+				level_id = job.level_id,
+				id = id,
+				room_id = job.room_id,
+				server = job.server or false,
+				num_plrs = job.num_plrs or 0,
+				state = job.state,
+				host_name = job.host_name,
+				host_id = job.host_id,
+				special_node = job.special_node,
+				dlc = job.dlc,
+				contract_visuals = job_data and job_data.contract_visuals,
+				info = job.info,
+				mutators = job.mutators,
+				is_crime_spree = job.crime_spree and job.crime_spree >= 0,
+				crime_spree = job.crime_spree,
+				crime_spree_mission = job.crime_spree_mission,
+				server_data = job.server_data,
+				mods = job.mods,
+				skirmish = job.skirmish,
+				skirmish_wave = job.skirmish_wave,
+				skirmish_weekly_modifiers = job.skirmish_weekly_modifiers
+			}
+
+			managers.menu_component:post_event("menu_enter")
+
+			if not data.dlc or managers.dlc:is_dlc_unlocked(data.dlc) then
+				local node = job.special_node
+
+				if not node then
+					if Global.game_settings.single_player then
+						node = "crimenet_contract_singleplayer"
+					elseif job.server then
+						node = "crimenet_contract_join"
+
+						if job.is_crime_spree then
+							node = "crimenet_contract_crime_spree_join"
+						end
+
+						if job.is_skirmish then
+							node = "skirmish_contract_join"
+						end
+					else
+						node = "crimenet_contract_host"
+					end
+				end
+
+				if (not Compact_Info.settings.panel_on_jobs and node == "crimenet_contract_host") or node == "crimenet_contract_singleplayer" then
+					managers.menu:open_node(node, {data})
+				else
+					if not self._inside_info then
+						self._local_job = job
+
+						if alive(self._host_info_panel) then
+							self:recreate_host_info(job)
+						else
+							local pos = Compact_Info.settings.position
+							if pos == 2 then
+								x, y = 0, 75
+							elseif pos == 3 then
+								x, y = 0, self._panel:h()
+							elseif pos == 4 then
+								x, y = self._panel:w() / 2, 75
+							elseif pos == 5 then
+								x, y = self._panel:w() / 2, self._panel:h()
+							elseif pos == 6 then
+								x, y = self._panel:w(), 75
+							elseif pos == 7 then
+								x, y = self._panel:w(), self._panel:h()
+							end
+
+							self:create_host_info(job, x, y)
+							self._accident_click_on_btns = true
+						end
+					end
+				end
+			elseif SystemInfo:distribution() == Idstring("STEAM") then
+				local dlc_data = Global.dlc_manager.all_dlc_data[data.dlc]
+				local app_id = dlc_data and dlc_data.app_id
+
+				if app_id then
+					managers.network.account:overlay_activate("store", app_id)
+				end
+			elseif SystemInfo:distribution() == Idstring("EPIC") then
+				-- Nothing
+			end
+
+			if job.expanded then
+				for id2, job2 in pairs(self._jobs) do
+					if job2 ~= job then
+						job2.expanded = false
+					end
+				end
+			end
+
+			return true
+		end
+	end
 end

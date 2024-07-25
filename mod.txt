@@ -2,7 +2,7 @@
 	"name": "Compact Host Info",
 	"description": "",
 	"author": "James",
-	"version": "7",
+	"version": "7.1",
 	"hooks": [
 		{"hook_id": "lib/network/matchmaking/networkmatchmakingepic",	"script_path": "networkmatchmakingepic.lua"},
 		{"hook_id": "lib/managers/crimenetmanager",	"script_path": "crimenet.lua"}

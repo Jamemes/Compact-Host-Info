@@ -1281,7 +1281,7 @@ function CrimeNetGui:dialog_move_mod_to_list(button, mods_panel, scroll_panel, m
 	for id, mod in pairs(mods_table) do
 		local btn = scroll_panel:child(mod.name .. id)
 		if alive(btn) and mods_panel:inside(x, y) and btn:inside(x, y) and not (up:inside(x, y) or down:inside(x, y)) then
-			if button == Idstring("0") then
+			if PeerModListHighlights and button == Idstring("0") then
 				self._hold_compact_panel = false
 				local list = PeerModListHighlights.lists
 				local function move_mod_in_list(mod, first, second, third)

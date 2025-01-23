@@ -496,12 +496,13 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local lowest_val = 0.5
 	local size_value = (Compact_Info.settings.job_info_size or 1) * Compact_Info.settings.size
 	local size = size_value < lowest_val and lowest_val or size_value
-
+	
+	local name_id = job_tweak and managers.localization:text(job_tweak.name_id)
 	local job_name = job_info:text({
 		x = 8 * size,
 		y = 8 * size,
 		name = "job_name",
-		text = job.server_data.level_name or managers.localization:text(job_tweak.name_id) or "NO JOB",
+		text = job.server_data.level_name or name_id or "NO JOB",
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size
 	})
@@ -846,7 +847,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	avatar_panel:set_h(host_head:w() - 16 * size)
 	
 	if job.host_id == "" then
-		if job_tweak.contract_visuals and job_tweak.contract_visuals.preview_image then
+		if job_tweak and job_tweak.contract_visuals and job_tweak.contract_visuals.preview_image then
 			local data = job_tweak.contract_visuals.preview_image
 			local path, rect = nil
 
@@ -877,10 +878,11 @@ function CrimeNetGui:create_host_info(job, x, y)
 	})
 
 	local steam_username = #job.host_id ~= 32 and Steam and Steam:username(job.host_id) or job.host_name -- Epic uses a 32-character ID; Steam doesn't have a guaranteed single length.
+	local name_id = job_tweak and managers.localization:text(tweak_data.narrative.contacts[job_tweak.contact].name_id)
 	local host_nickname = host_head:text({
 		name = "host_nickname",
 		align = "center",
-		text = job.host_id == "" and managers.localization:text(tweak_data.narrative.contacts[job_tweak.contact].name_id) or tostring((steam_username ~= "" and steam_username) or (job.host_name ~= nil and job.host_name) or "Unknown"),
+		text = job.host_id == "" and name_id or tostring((steam_username ~= "" and steam_username) or (job.host_name ~= nil and job.host_name) or "Unknown"),
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font
 	})
@@ -890,10 +892,11 @@ function CrimeNetGui:create_host_info(job, x, y)
 	host_nickname:set_top(avatar_panel:bottom() + 5)
 	host_nickname:set_center_x(avatar_panel:center_x())
 	
+	local name_id = job_tweak and managers.localization:text(job_tweak.name_id)
 	local playtime = host_head:text({
 		name = "playtime",
 		align = "center",
-		text = job.host_id == "" and managers.localization:text(job_tweak.name_id) or managers.localization:text("menu_http_loading") or "",
+		text = job.host_id == "" and name_id or managers.localization:text("menu_http_loading") or "",
 		font_size = tweak_data.menu.pd2_small_font_size * size,
 		font = tweak_data.menu.pd2_small_font,
 		color = tweak_data.screen_colors.achievement_grey

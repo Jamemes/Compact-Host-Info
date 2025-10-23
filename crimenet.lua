@@ -542,10 +542,11 @@ function CrimeNetGui:create_host_info(job, x, y)
 	fine_text(one_down)
 	one_down:set_lefttop(difficulty_name:right(), difficulty_name:top())
 
+	local exp_str = job.job_id and job.difficulty_id and show_exp(job.job_id, job.difficulty_id) or ""
 	local experience = job_info:text({
 		x = 8 * size,
 		name = "experience",
-		text = job.job_id and job.difficulty_id and show_exp(job.job_id, job.difficulty_id) or "",
+		text = exp_str,
 		font = tweak_data.menu.pd2_small_font,
 		font_size = tweak_data.menu.pd2_small_font_size * size
 	})
@@ -555,7 +556,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local job_ghost_mul = managers.job:get_ghost_bonus() or 0
 	local ghost_xp_text = nil
 
-	if job_ghost_mul ~= 0 then
+	if exp_str ~= "" and job_ghost_mul ~= 0 then
 		local job_ghost = math.round(job_ghost_mul * 100)
 		local job_ghost_string = tostring(math.abs(job_ghost))
 		local ghost_color = tweak_data.screen_colors.ghost_color
@@ -583,7 +584,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 	local heat_color = managers.job:get_heat_color(job_heat)
 	local heat_xp_text = nil
 
-	if job_heat_mul ~= 0 then
+	if exp_str ~= "" and job_heat_mul ~= 0 then
 		job_heat = math.round(job_heat_mul * 100)
 		local job_heat_string = tostring(math.abs(job_heat))
 
@@ -877,7 +878,7 @@ function CrimeNetGui:create_host_info(job, x, y)
 		sides = {1, 1, 1, 1}
 	})
 
-	local steam_username = #job.host_id ~= 32 and Steam and Steam:username(job.host_id) or job.host_name -- Epic uses a 32-character ID; Steam doesn't have a guaranteed single length.
+	local steam_username = #job.host_id ~= 32 and Steam and managers.network:sanitize_peer_name(Steam:username(job.host_id)) or job.host_name -- Epic uses a 32-character ID; Steam doesn't have a guaranteed single length.
 	local name_id = job_tweak and managers.localization:text(tweak_data.narrative.contacts[job_tweak.contact].name_id)
 	local host_nickname = host_head:text({
 		name = "host_nickname",
@@ -1730,6 +1731,7 @@ function CrimeNetGui:check_job_pressed(x, y)
 
 						if alive(self._host_info_panel) then
 							self:recreate_host_info(job)
+							self._accident_click_on_btns = true
 						else
 							local pos = Compact_Info.settings.position
 							if pos == 2 then

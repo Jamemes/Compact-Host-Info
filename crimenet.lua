@@ -455,15 +455,17 @@ local function peer_modlist_highlight_injector(mod, config)
 		return
 	end
 
-	if table.contains(PeerModListHighlights.lists.greenlist, string.upper(mod)) then
-		config.mod_rate = 3
-		config.color = PeerModListHighlights.greencolour
-	elseif table.contains(PeerModListHighlights.lists.yellowlist, string.upper(mod)) then
-		config.mod_rate = 2
-		config.color = PeerModListHighlights.yellowcolour
-	elseif table.contains(PeerModListHighlights.lists.redlist, string.upper(mod)) then
-		config.mod_rate = 1
-		config.color = PeerModListHighlights.redcolour
+	if PeerModListHighlights.lists then
+		if PeerModListHighlights.lists.greenlist and table.contains(PeerModListHighlights.lists.greenlist, string.upper(mod)) then
+			config.mod_rate = 3
+			config.color = PeerModListHighlights.greencolour
+		elseif PeerModListHighlights.lists.yellowlist and table.contains(PeerModListHighlights.lists.yellowlist, string.upper(mod)) then
+			config.mod_rate = 2
+			config.color = PeerModListHighlights.yellowcolour
+		elseif PeerModListHighlights.lists.redlist and table.contains(PeerModListHighlights.lists.redlist, string.upper(mod)) then
+			config.mod_rate = 1
+			config.color = PeerModListHighlights.redcolour
+		end
 	end
 end
 
